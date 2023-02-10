@@ -25,7 +25,7 @@ export class Renderer
 
         this.gl.clearColor(0.09, 0.09, 0.09, 1.0);
 
-        this.primitiveType = WebGL2RenderingContext.LINE_STRIP;
+        this.primitiveType = WebGL2RenderingContext.TRIANGLES;
     }
 
     private resize(): void

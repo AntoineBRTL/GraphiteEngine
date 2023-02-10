@@ -3,8 +3,10 @@ Graphit is a powerfull graphic engine for web application.
 
 This engine is developped in Typescript and can run in a browser and Electron. The engine is powered by WebGL and no external libraries are required to run the engine.
 
+![alt text](image.png)
+
 ## How to use
-Main.ts:`
+Main.ts
 ```typescript
 export class Main
 {
@@ -20,7 +22,7 @@ export class Main
 Main.Main([""]);
 ```
 
-Cube.ts:`
+Cube.ts
 ```typescript
 export class Cube extends Actor
 {
