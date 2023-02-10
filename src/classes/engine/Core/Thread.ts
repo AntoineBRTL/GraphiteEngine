@@ -7,6 +7,8 @@ export class Thread
     private deltaTime: number;
     private lastTime: number;
 
+    private finishedFrame: boolean;
+
     public constructor(targetFrameRate: number)
     {
         this.isRunning = false;
@@ -15,6 +17,8 @@ export class Thread
 
         this.deltaTime = 0;
         this.lastTime = 0;
+
+        this.finishedFrame = true;
     }
 
     private run(): void
@@ -27,11 +31,18 @@ export class Thread
                 return;
             }
 
+            if(!this.finishedFrame)
+                return;
+
+            this.finishedFrame = false;
+
             this.onTick();
             this.onInputTick();
 
             this.deltaTime = (performance.now() - this.lastTime) / 1e3;
             this.lastTime = performance.now();
+
+            this.finishedFrame = true;
         }.bind(this), 1000 / this.targetFrameRate);
     }
 

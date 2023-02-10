@@ -3,13 +3,17 @@ import { Shader } from "./Shader.js";
 let vss = `#version 300 es
 precision mediump float;
 in vec3 vertexPosition;
+in vec3 vertexNormal;
 
 uniform mat4 mObject;
 uniform mat4 mView;
 uniform mat4 mProj;
 
+out vec3 normal;
+
 void main(){
-    gl_Position = mProj * mView * mObject * vec4(vertexPosition.x, vertexPosition.y, vertexPosition.z, 1.0);
+    normal = normalize(mat3(mObject) * vertexNormal);
+    gl_Position = mProj * mView * mObject * vec4(vertexPosition.x, -vertexPosition.y, vertexPosition.z, 1.0);
 }
 `;
 
@@ -20,9 +24,19 @@ layout(location = 0) out vec4 out1;
 uniform float width;
 uniform float height;
 
+in vec3 normal;
+
+vec3 computeDirectionalLigth(vec3 color)
+{
+    vec3 sunDir = vec3(-1.0, 1.0, 0.0);
+    return color * max(0.0, dot(normal, sunDir));
+}
+
 void main(){
     vec2 resolution = vec2(width, height);
-    out1 = vec4(vec3(gl_FragCoord.x / resolution.x, gl_FragCoord.y / resolution.y, 1.0), 1.0);
+    // out1 = vec4(vec3(gl_FragCoord.x / resolution.x, gl_FragCoord.y / resolution.y, 1.0), 1.0);
+    vec3 color = computeDirectionalLigth(vec3(0.1, 0.1, 0.1));
+    out1 = vec4(color, 1.0);
 }
 `;
 

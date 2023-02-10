@@ -10,7 +10,7 @@ export class OBJLoader{
         this.fileReader = fileReader;
     }
 
-    public load(path: string, mesh: Mesh){
+    public load(path: string, mesh: Mesh, callback: Function){
         if(path.split(".").at(-1) != "obj"){
             throw new Error("File format not supported");
         }
@@ -81,6 +81,8 @@ export class OBJLoader{
                     return;
                 }
             });
+            
+            callback();
         });
     }
 }

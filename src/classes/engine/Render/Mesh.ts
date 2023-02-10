@@ -66,6 +66,11 @@ export class Mesh
         return this.vertices;
     }
 
+    public getNormals(): number[]
+    {
+        return this.normals;
+    }
+
     public getIndices(): number[] | null
     {
         return this.indices;
@@ -81,6 +86,8 @@ export class Mesh
     {
         this.reset();
 
-        objLoader.load(path, this);
+        objLoader.load(path, this, function(this:Mesh)
+        {
+        }.bind(this));
     }
 }

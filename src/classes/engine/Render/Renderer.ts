@@ -24,6 +24,7 @@ export class Renderer
         this.gl = tmpgl;
 
         this.gl.clearColor(0.09, 0.09, 0.09, 1.0);
+        this.gl.enable(this.gl.DEPTH_TEST);
 
         this.primitiveType = WebGL2RenderingContext.TRIANGLES;
     }
@@ -53,9 +54,11 @@ export class Renderer
 
         let mesh = actor.getMesh();
         let vertices = mesh.getVertices();
+        let normals = mesh.getNormals();
         
         this.gl.useProgram(program);
         this.bufferAttribute('vertexPosition', vertices, program);
+        this.bufferAttribute('vertexNormal', normals, program);
         this.uniformMatrix('mObject', actor.getTransform().getTransformationMatrix().toArray(), program);
         this.uniformMatrix('mView', camera.getTransform().getViewTransformationMatrix().toArray(), program);
         this.uniformMatrix('mProj', camera.getProjectionMatrix().toArray(), program);
