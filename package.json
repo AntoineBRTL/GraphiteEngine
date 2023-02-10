@@ -1,0 +1,21 @@
+{
+  "name": "graphicengine",
+  "version": "1.0.0",
+  "description": "Graphic engine in Typescript",
+  "main": "app/Main.js",
+  "scripts": {
+    "start": "electron app/Main.js"
+  },
+  "keywords": [
+    "Graphic",
+    "Engine"
+  ],
+  "author": "Antoine Bartoli",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^18.13.0"
+  },
+  "devDependencies": {
+    "electron": "^23.0.0"
+  }
+}

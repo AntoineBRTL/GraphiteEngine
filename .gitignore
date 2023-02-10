@@ -1,0 +1,6 @@
+/app
+/Compiler.ps1
+/demo
+/node_modules
+/package-lock.json
+/tsconfig.json

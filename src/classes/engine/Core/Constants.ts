@@ -1,0 +1,1 @@
+export const ENGINE_DEFAULT_TARGET_FRAMERATE: number = 75;
