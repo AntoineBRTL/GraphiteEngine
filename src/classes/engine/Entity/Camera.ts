@@ -24,7 +24,7 @@ export class Camera extends Actor
         Camera.Cameras.push(this);
 
         this.fov = 90.0;
-        this.near = 0.1;
+        this.near = 0.01;
         this.far = 1000.0;
         this.renderer = new Renderer();
 
