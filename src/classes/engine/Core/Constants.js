@@ -1,1 +1,0 @@
-export const ENGINE_DEFAULT_TARGET_FRAMERATE = 75;
