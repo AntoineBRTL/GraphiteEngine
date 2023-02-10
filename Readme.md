@@ -67,4 +67,4 @@ export class Cube extends Actor
 }
 ```
 
-This exemple create a cube.
+This exemple creates a cube.
