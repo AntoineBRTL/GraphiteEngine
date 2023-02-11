@@ -1,5 +1,7 @@
 import { Matrix4 } from "./Matrix4.js";
-import { RotationMatrix } from "./RotationMatrix.js";
+import { RotationxMatrix } from "./RotationxMatrix.js";
+import { RotationyMatrix } from "./RotationyMatrix.js";
+import { RotationzMatrix } from "./RotationzMatrix.js";
 import { ScalingMatrix } from "./ScalingMatrix.js";
 import { TranslationMatrix } from "./TranslationMatrix.js";
 import { Vector3 } from "./Vector3.js";
@@ -19,16 +21,22 @@ export class Transform
 
     public getViewTransformationMatrix(): Matrix4
     {
+        let rx = new RotationxMatrix((Math.PI / 180) * this.rotation.x);
+        let ry = new RotationyMatrix((Math.PI / 180) * this.rotation.y);
+        let rz = new RotationzMatrix((Math.PI / 180) * this.rotation.z);
+        let rm = rz.product(ry).product(rx);
         let tm = new TranslationMatrix(this.location);
-        let rm = new RotationMatrix(this.rotation);
         let sm = new ScalingMatrix(this.scale);
         return sm.product(tm).product(rm);
     }
 
     public getTransformationMatrix(): Matrix4
     {
+        let rx = new RotationxMatrix((Math.PI / 180) * this.rotation.x);
+        let ry = new RotationyMatrix((Math.PI / 180) * this.rotation.y);
+        let rz = new RotationzMatrix((Math.PI / 180) * this.rotation.z);
+        let rm = rz.product(ry).product(rx);
         let tm = new TranslationMatrix(this.location);
-        let rm = new RotationMatrix(this.rotation);
         let sm = new ScalingMatrix(this.scale);
         return rm.product(tm).product(sm);
     }

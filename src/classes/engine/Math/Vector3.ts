@@ -1,13 +1,18 @@
-export class Vector3
+export class Vector3 extends Float32Array
 {
-    public x: number;
-    public y: number;
-    public z: number;
+    public get x(): number { return this[0]; }
+    public get y(): number { return this[1]; }
+    public get z(): number { return this[2]; }
+
+    public set x(x:number) { this[0] = x; }
+    public set y(y:number) { this[1] = y; }
+    public set z(z:number) { this[2] = z; }
 
     public constructor();
     public constructor(x: number, y: number, z: number);
     public constructor(x?: number, y?: number, z?: number)
     {
+        super(3);
         this.x = x || 0.0;
         this.y = y || 0.0;
         this.z = z || 0.0;
@@ -55,10 +60,5 @@ export class Vector3
             this.z * vector.x - this.x * vector.z,
             this.x * vector.y - this.y * vector.x
         );
-    }
-
-    public toArray(): number[]
-    {
-        return [this.x, this.y, this.z];
     }
 }

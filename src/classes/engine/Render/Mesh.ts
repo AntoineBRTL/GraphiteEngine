@@ -122,7 +122,7 @@ export class Mesh
     }
 
     /** TODO: change the access modifier to protected, which force developpers to write sub classes for generic meshes*/
-    public from(path: string): void
+    protected from(path: string): void
     {
         this.reset();
 

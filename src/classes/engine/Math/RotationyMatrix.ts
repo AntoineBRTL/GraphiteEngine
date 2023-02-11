@@ -9,9 +9,9 @@ export class RotationyMatrix extends Matrix4
         let cos = Math.cos(theta);
         let sin = Math.sin(theta);
 
-        this.a11 = cos;
-        this.a13 = sin;
-        this.a31 = -sin;
-        this.a33 = cos;
+        this[0] = cos;
+        this[2] = sin;
+        this[8] = -sin;
+        this[10] = cos;
     }
 }

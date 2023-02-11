@@ -7,8 +7,8 @@ export class TranslationMatrix extends Matrix4
     {
         super();
 
-        this.a41 = location.x;
-        this.a42 = location.y;
-        this.a43 = location.z;
+        this[12] = location.x;
+        this[13] = location.y;
+        this[14] = location.z;
     }
 }

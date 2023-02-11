@@ -6,6 +6,7 @@ import { InputSystem } from "./engine/Core/InputSystem.js";
 import { FileReader } from "./engine/Utils/FileReader.js";
 import { OBJLoader } from "./engine/Utils/OBJLoader.js";
 
+export { Mesh } from "./engine/Render/Mesh.js";
 export { Thread } from "./engine/Core/Thread.js";
 export { Engine } from "./engine/Core/Engine.js";
 export { Renderer } from "./engine/Render/Renderer.js";

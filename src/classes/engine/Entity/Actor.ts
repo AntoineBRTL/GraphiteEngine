@@ -7,8 +7,8 @@ export class Actor
     private static actors: Actor[] = [];
 
     protected transform: Transform;
-    protected mesh: Mesh;
-    protected material: Material;
+    private mesh: Mesh;
+    private material: Material;
 
     public constructor()
     {
@@ -39,5 +39,15 @@ export class Actor
     public getTransform(): Transform
     {
         return this.transform;
+    }
+
+    protected setMesh(mesh: Mesh): void
+    {
+        this.mesh = mesh;
+    }
+
+    protected setMaterial(material: Material): void
+    {
+        this.material = material;
     }
 }

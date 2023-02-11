@@ -59,9 +59,9 @@ export class Renderer
         this.gl.useProgram(program);
         this.bufferAttribute('vertexPosition', vertices, program);
         this.bufferAttribute('vertexNormal', normals, program);
-        this.uniformMatrix('mObject', actor.getTransform().getTransformationMatrix().toArray(), program);
-        this.uniformMatrix('mView', camera.getTransform().getViewTransformationMatrix().toArray(), program);
-        this.uniformMatrix('mProj', camera.getProjectionMatrix().toArray(), program);
+        this.uniformMatrix('mObject', actor.getTransform().getTransformationMatrix(), program);
+        this.uniformMatrix('mView', camera.getTransform().getViewTransformationMatrix(), program);
+        this.uniformMatrix('mProj', camera.getProjectionMatrix(), program);
         this.uniformFloat('width', this.renderingCanvas.getCanvas().width, program);
         this.uniformFloat('height', this.renderingCanvas.getCanvas().height, program);
         this.onSettingAttribute(program);
@@ -83,7 +83,7 @@ export class Renderer
         return this.gl.getUniformLocation(program, name);
     }
 
-    protected uniformMatrix(name: string, value: number[], program: WebGLProgram): void
+    protected uniformMatrix(name: string, value: Float32Array, program: WebGLProgram): void
     {
         this.gl.uniformMatrix4fv(this.getUniformLoaction(name, program), false, new Float32Array(value));
     }

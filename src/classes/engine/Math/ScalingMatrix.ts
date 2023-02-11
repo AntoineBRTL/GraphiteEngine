@@ -7,8 +7,8 @@ export class ScalingMatrix extends Matrix4
     {
         super();
 
-        this.a11 = scale.x;
-        this.a22 = scale.y;
-        this.a33 = scale.z;
+        this[0] = scale.x;
+        this[5] = scale.y;
+        this[10] = scale.z;
     }
 }

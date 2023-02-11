@@ -1,105 +1,87 @@
-export class Matrix4
+export class Matrix4 extends Float32Array
 {
-    protected a11: number;
-    protected a12: number;
-    protected a13: number;
-    protected a14: number;
-
-    protected a21: number;
-    protected a22: number;
-    protected a23: number;
-    protected a24: number;
-
-    protected a31: number;
-    protected a32: number;
-    protected a33: number;
-    protected a34: number;
-
-    protected a41: number;
-    protected a42: number;
-    protected a43: number;
-    protected a44: number;
+    public get a11(): number { return this[0]; }
+    public get a12(): number { return this[1]; }
+    public get a13(): number { return this[2]; }
+    public get a14(): number { return this[3]; }
+    public get a21(): number { return this[4]; }
+    public get a22(): number { return this[5]; }
+    public get a23(): number { return this[6]; }
+    public get a24(): number { return this[7]; }
+    public get a31(): number { return this[8]; }
+    public get a32(): number { return this[9]; }
+    public get a33(): number { return this[10]; }
+    public get a34(): number { return this[11]; }
+    public get a41(): number { return this[12]; }
+    public get a42(): number { return this[13]; }
+    public get a43(): number { return this[14]; }
+    public get a44(): number { return this[15]; }
+    public set a11(x:number) { this[0] = x; }
+    public set a12(x:number) { this[1] = x; }
+    public set a13(x:number) { this[2] = x; }
+    public set a14(x:number) { this[3] = x; }
+    public set a21(x:number) { this[4] = x; }
+    public set a22(x:number) { this[5] = x; }
+    public set a23(x:number) { this[6] = x; }
+    public set a24(x:number) { this[7] = x; }
+    public set a31(x:number) { this[8] = x; }
+    public set a32(x:number) { this[9] = x; }
+    public set a33(x:number) { this[10] = x; }
+    public set a34(x:number) { this[11] = x; }
+    public set a41(x:number) { this[12] = x; }
+    public set a42(x:number) { this[13] = x; }
+    public set a43(x:number) { this[14] = x; }
+    public set a44(x:number) { this[15] = x; }
 
     public constructor()
     {
-        this.a11 = 1.0;
-        this.a12 = 0.0;
-        this.a13 = 0.0;
-        this.a14 = 0.0;
+        super(16);
 
-        this.a21 = 0.0;
-        this.a22 = 1.0;
-        this.a23 = 0.0;
-        this.a24 = 0.0;
+        this[0] = 1.0;
+        this[1] = 0.0;
+        this[2] = 0.0;
+        this[3] = 0.0;
 
-        this.a31 = 0.0;
-        this.a32 = 0.0;
-        this.a33 = 1.0;
-        this.a34 = 0.0;
+        this[4] = 0.0;
+        this[5] = 1.0;
+        this[6] = 0.0;
+        this[7] = 0.0;
 
-        this.a41 = 0.0;
-        this.a42 = 0.0;
-        this.a43 = 0.0;
-        this.a44 = 1.0;
+        this[8] = 0.0;
+        this[9] = 0.0;
+        this[10] = 1.0;
+        this[11] = 0.0;
+
+        this[12] = 0.0;
+        this[13] = 0.0;
+        this[14] = 0.0;
+        this[15] = 1.0;
     }
 
     public product(matrix: Matrix4): Matrix4
     {
         let productMatrix = new Matrix4();
 
-        productMatrix.a11 = this.a11 * matrix.a11 + this.a12 * matrix.a21 + this.a13 * matrix.a31 + this.a14 * matrix.a41;
-        productMatrix.a12 = this.a11 * matrix.a12 + this.a12 * matrix.a22 + this.a13 * matrix.a32 + this.a14 * matrix.a42;
-        productMatrix.a13 = this.a11 * matrix.a13 + this.a12 * matrix.a23 + this.a13 * matrix.a33 + this.a14 * matrix.a43;
-        productMatrix.a14 = this.a11 * matrix.a14 + this.a12 * matrix.a24 + this.a13 * matrix.a34 + this.a14 * matrix.a44;
+        productMatrix[0] = this[0] * matrix[0] + this[1] * matrix[4] + this[2] * matrix[8] + this[3] * matrix[12];
+        productMatrix[1] = this[0] * matrix[1] + this[1] * matrix[5] + this[2] * matrix[9] + this[3] * matrix[13];
+        productMatrix[2] = this[0] * matrix[2] + this[1] * matrix[6] + this[2] * matrix[10] + this[3] * matrix[14];
+        productMatrix[3] = this[0] * matrix[3] + this[1] * matrix[7] + this[2] * matrix[11] + this[3] * matrix[15];
 
-        productMatrix.a21 = this.a21 * matrix.a11 + this.a22 * matrix.a21 + this.a23 * matrix.a31 + this.a24 * matrix.a41;
-        productMatrix.a22 = this.a21 * matrix.a12 + this.a22 * matrix.a22 + this.a23 * matrix.a32 + this.a24 * matrix.a42;
-        productMatrix.a23 = this.a21 * matrix.a13 + this.a22 * matrix.a23 + this.a23 * matrix.a33 + this.a24 * matrix.a43;
-        productMatrix.a24 = this.a21 * matrix.a14 + this.a22 * matrix.a24 + this.a23 * matrix.a34 + this.a24 * matrix.a44;
+        productMatrix[4] = this[4] * matrix[0] + this[5] * matrix[4] + this[6] * matrix[8] + this[7] * matrix[12];
+        productMatrix[5] = this[4] * matrix[1] + this[5] * matrix[5] + this[6] * matrix[9] + this[7] * matrix[13];
+        productMatrix[6] = this[4] * matrix[2] + this[5] * matrix[6] + this[6] * matrix[10] + this[7] * matrix[14];
+        productMatrix[7] = this[4] * matrix[3] + this[5] * matrix[7] + this[6] * matrix[11] + this[7] * matrix[15];
 
-        productMatrix.a31 = this.a31 * matrix.a11 + this.a32 * matrix.a21 + this.a33 * matrix.a31 + this.a34 * matrix.a41;
-        productMatrix.a32 = this.a31 * matrix.a12 + this.a32 * matrix.a22 + this.a33 * matrix.a32 + this.a34 * matrix.a42;
-        productMatrix.a33 = this.a31 * matrix.a13 + this.a32 * matrix.a23 + this.a33 * matrix.a33 + this.a34 * matrix.a43;
-        productMatrix.a34 = this.a31 * matrix.a14 + this.a32 * matrix.a24 + this.a33 * matrix.a34 + this.a34 * matrix.a44;
+        productMatrix[8] = this[8] * matrix[0] + this[9] * matrix[4] + this[10] * matrix[8] + this[11] * matrix[12];
+        productMatrix[9] = this[8] * matrix[1] + this[9] * matrix[5] + this[10] * matrix[9] + this[11] * matrix[13];
+        productMatrix[10] = this[8] * matrix[2] + this[9] * matrix[6] + this[10] * matrix[10] + this[11] * matrix[14];
+        productMatrix[11] = this[8] * matrix[3] + this[9] * matrix[7] + this[10] * matrix[11] + this[11] * matrix[15];
 
-        productMatrix.a41 = this.a41 * matrix.a11 + this.a42 * matrix.a21 + this.a43 * matrix.a31 + this.a44 * matrix.a41;
-        productMatrix.a42 = this.a41 * matrix.a12 + this.a42 * matrix.a22 + this.a43 * matrix.a32 + this.a44 * matrix.a42;
-        productMatrix.a43 = this.a41 * matrix.a13 + this.a42 * matrix.a23 + this.a43 * matrix.a33 + this.a44 * matrix.a43;
-        productMatrix.a44 = this.a41 * matrix.a14 + this.a42 * matrix.a24 + this.a43 * matrix.a34 + this.a44 * matrix.a44;
+        productMatrix[12] = this[12] * matrix[0] + this[13] * matrix[4] + this[14] * matrix[8] + this[15] * matrix[12];
+        productMatrix[13] = this[12] * matrix[1] + this[13] * matrix[5] + this[14] * matrix[9] + this[15] * matrix[13];
+        productMatrix[14] = this[12] * matrix[2] + this[13] * matrix[6] + this[14] * matrix[10] + this[15] * matrix[14];
+        productMatrix[15] = this[12] * matrix[3] + this[13] * matrix[7] + this[14] * matrix[11] + this[15] * matrix[15];
 
         return productMatrix;
-    }
-
-    public set(matrix: Matrix4): void
-    {
-        this.a11 = matrix.a11;
-        this.a12 = matrix.a12;
-        this.a13 = matrix.a13;
-        this.a14 = matrix.a14;
-
-        this.a21 = matrix.a21;
-        this.a22 = matrix.a22;
-        this.a23 = matrix.a23;
-        this.a24 = matrix.a24;
-
-        this.a31 = matrix.a31;
-        this.a32 = matrix.a32;
-        this.a33 = matrix.a33;
-        this.a34 = matrix.a34;
-
-        this.a41 = matrix.a41;
-        this.a42 = matrix.a42;
-        this.a43 = matrix.a43;
-        this.a44 = matrix.a44;
-    }
-
-    public toArray(): number[]
-    {
-        return [
-            this.a11, this.a12, this.a13, this.a14, 
-            this.a21, this.a22, this.a23, this.a24, 
-            this.a31, this.a32, this.a33, this.a34, 
-            this.a41, this.a42, this.a43, this.a44, 
-        ];
     }
 }
