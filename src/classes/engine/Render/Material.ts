@@ -35,7 +35,8 @@ vec3 computeDirectionalLigth(vec3 color)
 void main(){
     vec2 resolution = vec2(width, height);
     // out1 = vec4(vec3(gl_FragCoord.x / resolution.x, gl_FragCoord.y / resolution.y, 1.0), 1.0);
-    vec3 color = computeDirectionalLigth(vec3(0.1, 0.1, 0.1));
+    // vec3 color = computeDirectionalLigth(vec3(0.1, 0.1, 0.1));
+    vec3 color = (normal + 0.5) / 2.0;
     out1 = vec4(color, 1.0);
 }
 `;
