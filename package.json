@@ -4,7 +4,7 @@
   "description": "Graphic engine in Typescript",
   "main": "app/Main.js",
   "scripts": {
-    "start": "electron app/Main.js"
+    "start": "electron --enable-unsafe-webgpu app/Main.js"
   },
   "keywords": [
     "Graphic",
@@ -13,9 +13,10 @@
   "author": "Antoine Bartoli",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^18.13.0"
+    "@types/node": "^18.13.0",
+    "@webgpu/types": "^0.1.26"
   },
   "devDependencies": {
-    "electron": "^23.0.0"
+    "electron": "^6.1.12"
   }
 }

@@ -1,4 +1,5 @@
 import { Mesh } from "../Render/Mesh.js";
+import { WebGPUMesh } from "../Render/WebGPUMesh";
 import { FileReader } from "./FileReader.js";
 
 export class OBJLoader{
@@ -10,10 +11,7 @@ export class OBJLoader{
         this.fileReader = fileReader;
     }
 
-    public load(path: string, mesh: Mesh, callback: Function){
-        if(path.split(".").at(-1) != "obj"){
-            throw new Error("File format not supported");
-        }
+    public load(path: string, mesh: WebGPUMesh, callback: Function){
 
         // read the file 
         this.fileReader.readFile(path, function(objFileContent: string){

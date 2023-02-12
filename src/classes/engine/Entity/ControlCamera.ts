@@ -1,6 +1,7 @@
-import { Camera, Input, Time, Vector3 } from "../../GraphicEngine.js";
+import { Input, Time, Vector3 } from "../../GraphicEngine.js";
+import { WebGPUCamera } from "../Render/WebGPUCamera.js";
 
-export class ControlCamera extends Camera
+export class ControlCamera extends WebGPUCamera
 {
     private speed: number;
     private flySpeed: number;
@@ -14,9 +15,9 @@ export class ControlCamera extends Camera
         this.flySpeed = 10.0;
         this.sensitivity = 30.0;
 
-        this.renderer.getRenderingCanvas().getCanvas().addEventListener("click", function(this:ControlCamera)
+        this.getRenderer().getRenderingCanvas().getCanvas().addEventListener("click", function(this:ControlCamera)
         {
-            this.renderer.getRenderingCanvas().getCanvas().requestPointerLock();
+            this.getRenderer().getRenderingCanvas().getCanvas().requestPointerLock();
         }.bind(this));
 
         window.addEventListener('mousemove', function(this: ControlCamera, event: MouseEvent)

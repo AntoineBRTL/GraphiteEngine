@@ -1,42 +1,57 @@
+import { Actor } from "../Entity/Actor.js";
 import { ProjectionMatrix } from "../Math/ProjectionMatrix.js";
 import { Vector3 } from "../Math/Vector3.js";
-import { Renderer } from "../Render/Renderer.js";
-import { Actor } from "./Actor.js";
+import { WebGPURenderer } from "./WebGPURender.js";
 
-export class Camera extends Actor
+export class WebGPUCamera extends Actor
 {
-    private static Cameras: Camera[] = [];
+    private static Cameras: WebGPUCamera[] = [];
 
     protected fov: number;
     protected near: number;
     protected far: number;
 
-    protected renderer: Renderer;
-
     public setFov(fov: number)
     {
         this.fov = fov;
     }
+    private renderer: WebGPURenderer;
 
     public constructor()
     {
         super();
-        Camera.Cameras.push(this);
+        this.renderer = new WebGPURenderer();
+
+        WebGPUCamera.Cameras.push(this);
 
         this.fov = 90.0;
         this.near = 0.01;
-        this.far = 1000.0;
-        this.renderer = new Renderer();
+        this.far = 1000.0;;
 
         this.transform.setLocation(new Vector3(0.0, 0.0, -2.0));
     }
 
-    public override update(): void
+    // TODO: optimization
+    public getProjectionBuffer(device: GPUDevice): GPUBuffer
     {
-        this.renderer.render(Actor.getActors(), this);    
+        let matrix = this.getProjectionMatrix();
+        let buffer = device.createBuffer(
+            {
+                size: matrix.byteLength,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+            }
+        );
+        device.queue.writeBuffer(buffer, 0, matrix);
+
+        return buffer;
     }
 
-    public getRenderer(): Renderer
+    public override update(): void 
+    {
+        this.renderer.render(Actor.getActors(), this);
+    }
+
+    public getRenderer(): WebGPURenderer
     {
         return this.renderer;
     }

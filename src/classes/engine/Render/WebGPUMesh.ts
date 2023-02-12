@@ -1,15 +1,13 @@
 import { objLoader } from "../../GraphicEngine.js";
 import { Vector3 } from "../Math/Vector3.js";
 
-export class Mesh
+export class WebGPUMesh
 {
     private vertices: number[];
     private normals: number[];
     private indices: number[] | null;
 
-    /** due to some memory leaks, pregenerated float32array(s) are not use by the renderer */
-    // private verticesFloat32Array: Float32Array | null;
-    // private normalsFloat32Array: Float32Array | null;
+    private vertexBuffer: GPUBuffer | null;
 
     public constructor()
     {
@@ -17,43 +15,47 @@ export class Mesh
         this.normals = new Array();
         this.indices = null;
 
-        // this.verticesFloat32Array = null;
-        // this.normalsFloat32Array = null;
+        this.vertexBuffer = null;
     }
 
-    // private consolidateVertices(): Float32Array
-    // {
-    //     this.verticesFloat32Array = new Float32Array(this.vertices);
-    //     return this.verticesFloat32Array;
-    // }
+    public getVertexBuffer(device: GPUDevice): GPUBuffer
+    {
+        let vertexBuffer = this.vertexBuffer;
+        if(!vertexBuffer)
+            vertexBuffer = this.generateVertexBuffer(device);
+        return vertexBuffer;
+    }
 
-    // private consolidateNormals(): Float32Array
-    // {
-    //     this.normalsFloat32Array = new Float32Array(this.normals);
-    //     return this.normalsFloat32Array;
-    // }
+    private generateVertexBuffer(device: GPUDevice): GPUBuffer
+    {
+        let vertices = new Float32Array(this.vertices);
+        let vertexBuffer = device.createBuffer(
+            {
+                size: vertices.byteLength,
+                usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+                // mappedAtCreation: true
+            }
+        );
+        // new Float32Array(vertexBuffer.getMappedRange()).set(vertices);
+        // vertexBuffer.unmap();
+        device.queue.writeBuffer(vertexBuffer, 0, vertices);
 
-    // private deconsolidate(): void
-    // {
-    //     this.verticesFloat32Array = null;
-    //     this.normalsFloat32Array = null;
-    // }
+        this.vertexBuffer = vertexBuffer;
+        return vertexBuffer;
+    }
 
     public addVertexAsNumbers(...x: number[]): void
     {
-        // this.deconsolidate();
         this.vertices.push(...x);
     }
 
     public addNormalAsNumbers(...x: number[]): void
     {
-        // this.deconsolidate();
         this.normals.push(...x);
     }
 
     public addVertex(...vertex: Vector3[]): void
     {
-        // this.deconsolidate();
         for(let vert of vertex)
         {
             this.vertices.push(vert.x);
@@ -64,7 +66,6 @@ export class Mesh
 
     public addNormal(...normal: Vector3[]): void
     {
-        // this.deconsolidate();
         for(let norm of normal)
         {
             this.normals.push(norm.x);
@@ -82,13 +83,11 @@ export class Mesh
 
     public setVertices(vertices: number[]): void
     {
-        // this.deconsolidate();
         this.vertices = vertices;
     }
 
     public setNormals(normals: number[]): void
     {
-        // this.deconsolidate();
         this.normals = normals;
     }
 
@@ -116,18 +115,17 @@ export class Mesh
 
     private reset(): void
     {
-        // this.deconsolidate();
         this.vertices = new Array();
         this.indices = null;
     }
 
-    /** TODO: change the access modifier to protected, which force developpers to write sub classes for generic meshes*/
     protected from(path: string): void
     {
         this.reset();
 
-        objLoader.load(path, this, function(this:Mesh)
+        objLoader.load(path, this, function(this:WebGPUMesh)
         {
+            this.vertexBuffer = null;
             // this.consolidateVertices();
             // this.consolidateNormals();
         }.bind(this));
