@@ -25,7 +25,7 @@ export class WebGPUCamera extends Actor
         WebGPUCamera.Cameras.push(this);
 
         this.fov = 90.0;
-        this.near = 0.01;
+        this.near = 0.001;
         this.far = 1000.0;;
 
         this.transform.setLocation(new Vector3(0.0, 0.0, -2.0));

@@ -1,4 +1,3 @@
-import { Mesh } from "../Render/Mesh.js";
 import { WebGPUMesh } from "../Render/WebGPUMesh";
 import { FileReader } from "./FileReader.js";
 
@@ -18,6 +17,7 @@ export class OBJLoader{
 
             let vertices: number[][] = new Array();
             let normals: number[][] = new Array();
+            let uvs: number[][] = new Array();
 
             // read all the lines 
             let lines = objFileContent.split("\n");
@@ -52,17 +52,31 @@ export class OBJLoader{
                     return;
                 }
 
+                if(name == "vt")
+                {
+                    let u = new Array();
+                    for(let i = 0; i < splitedLine.length; i++)
+                    {
+                        let coordinate = parseFloat(splitedLine[i]);
+                        u.push(coordinate);
+                    }
+
+                    uvs.push(u);
+                    return;
+                }
+
                 if(name == "f")
                 {
                     function setIndice(i: number)
                     {
                         let indices = splitedLine[i].split("/");
-                        let vi = parseFloat(indices[0]) - 1;
-                        let ti = parseFloat(indices[1]) - 1;
-                        let ni = parseFloat(indices[2]) - 1;
+                        let vi = parseInt(indices[0]) - 1;
+                        let ti = parseInt(indices[1]) - 1;
+                        let ni = parseInt(indices[2]) - 1;
 
                         mesh.addVertexAsNumbers(...vertices[vi]);
-                        mesh.addNormalAsNumbers(...normals[ni]);
+                        mesh.addVertexAsNumbers(...uvs[ti]);
+                        mesh.addVertexAsNumbers(...normals[ni]);
                     }
                     
                     setIndice(0);

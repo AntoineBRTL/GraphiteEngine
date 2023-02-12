@@ -11,6 +11,7 @@ export class WebGPURenderer
     private adapter: GPUAdapter | null;
     private device: GPUDevice | null;
     private context: GPUCanvasContext | null;
+    private depthView: GPUTextureView | null;
 
     private primitiveTopology: GPUPrimitiveTopology;
 
@@ -23,13 +24,11 @@ export class WebGPURenderer
         this.device = null;
         this.adapter = null;
         this.context = null;
+        this.depthView = null;
 
         this.setup();
         
         this.primitiveTopology = "triangle-strip";
-
-        window.addEventListener("resize", this.resize.bind(this));
-        this.resize();
     }
 
     private setup(): void
@@ -42,8 +41,23 @@ export class WebGPURenderer
             {
                 this.device = device;
                 this.context = this.setupContext();
+                this.depthView = this.setupDepthView(device);
+
+                this.resize(device);
+                window.addEventListener("resize", this.resize.bind(this, device));
             }.bind(this));
         }.bind(this));
+    }
+
+    private setupDepthView(device: GPUDevice): GPUTextureView
+    {
+        let depthTexture = device.createTexture({
+            size: {width: this.renderingCanvas.getCanvas().width, height: this.renderingCanvas.getCanvas().height}, 
+            format: 'depth24plus',
+            usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        })
+        let depthView = depthTexture.createView();
+        return depthView;
     }
 
     private setupGPU(): GPU
@@ -78,9 +92,10 @@ export class WebGPURenderer
         return device;
     }
 
-    private resize(): void
+    private resize(device: GPUDevice): void
     {
         this.renderingCanvas.resize();
+        this.depthView = this.setupDepthView(device);
     }
 
     private setupContext(): GPUCanvasContext
@@ -110,23 +125,25 @@ export class WebGPURenderer
     private renderActor(actor: Actor, camera: WebGPUCamera, passEncoder: GPURenderPassEncoder, device: GPUDevice): void
     {
         let pipeline = this.getActorPipeline(actor);
+
+        passEncoder.setPipeline(pipeline);
+        // passEncoder.setScissorRect(0, 0, this.renderingCanvas.getCanvas().width, this.renderingCanvas.getCanvas().height);
+        // passEncoder.setViewport(0, 0, this.renderingCanvas.getCanvas().width, this.renderingCanvas.getCanvas().height, 0, 1);
+
         let vertexBuffer = actor.getMesh().getVertexBuffer(device);
+        passEncoder.setVertexBuffer(0, vertexBuffer);
 
         let mActor = this.matrix4x4ToGPUBuffer(actor.getTransform().getTransformationMatrix(), device);
         let mView = this.matrix4x4ToGPUBuffer(camera.getTransform().getViewTransformationMatrix(), device);
         let mProj = camera.getProjectionBuffer(device);
-
-        let uniformBuffer = this.setupUniformBuffer(mActor, mView, mProj, device, pipeline);
-
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setScissorRect(0, 0, this.renderingCanvas.getCanvas().width, this.renderingCanvas.getCanvas().height);
-        passEncoder.setViewport(0, 0, this.renderingCanvas.getCanvas().width, this.renderingCanvas.getCanvas().height, 0, 1);
-        passEncoder.setVertexBuffer(0, vertexBuffer);
+        let mActorRot = this.matrix4x4ToGPUBuffer(actor.getTransform().getRotationMatrix(), device);
+        let uniformBuffer = this.setupUniformBuffer(mActor, mView, mProj, mActorRot, device, pipeline);
         passEncoder.setBindGroup(0, uniformBuffer);
-        passEncoder.draw(actor.getMesh().getVertices().length / 3);
+        
+        passEncoder.draw(actor.getMesh().getVertices().length / (3 + 2 + 3));
     }
 
-    private setupUniformBuffer(mActor: GPUBuffer, mView: GPUBuffer, mProj: GPUBuffer, device: GPUDevice, pipeline: GPURenderPipeline): GPUBindGroup
+    private setupUniformBuffer(mActor: GPUBuffer, mView: GPUBuffer, mProj: GPUBuffer, mActorRot: GPUBuffer, device: GPUDevice, pipeline: GPURenderPipeline): GPUBindGroup
     {
         return device.createBindGroup(
             {
@@ -152,6 +169,13 @@ export class WebGPURenderer
                         {
                             buffer: mProj
                         }
+                    },
+                    {
+                        binding: 3,
+                        resource: 
+                        {
+                            buffer: mActorRot
+                        }
                     }
                 ]
             }
@@ -172,7 +196,7 @@ export class WebGPURenderer
 
     public render(actors: Actor[], camera: WebGPUCamera): void
     {
-        if(!this.device || !this.context)
+        if(!this.device || !this.context || !this.depthView)
             return;
 
         let commandEncoder = this.device.createCommandEncoder();
@@ -185,7 +209,13 @@ export class WebGPURenderer
                     loadOp: "clear",
                     storeOp: "store"
                 }
-            ]
+            ],
+            depthStencilAttachment: {
+                view: this.depthView,
+                depthClearValue: 1.0,
+                depthLoadOp: 'clear',
+                depthStoreOp: 'store',
+            }
         }
 
         let passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);

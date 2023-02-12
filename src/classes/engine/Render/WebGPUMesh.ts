@@ -5,6 +5,7 @@ export class WebGPUMesh
 {
     private vertices: number[];
     private normals: number[];
+    private uvs: number[];
     private indices: number[] | null;
 
     private vertexBuffer: GPUBuffer | null;
@@ -13,6 +14,7 @@ export class WebGPUMesh
     {
         this.vertices = new Array();
         this.normals = new Array();
+        this.uvs = new Array();
         this.indices = null;
 
         this.vertexBuffer = null;
@@ -22,31 +24,37 @@ export class WebGPUMesh
     {
         let vertexBuffer = this.vertexBuffer;
         if(!vertexBuffer)
-            vertexBuffer = this.generateVertexBuffer(device);
+            vertexBuffer = this.generateVertexBuffer(device, this.vertices);
         return vertexBuffer;
     }
 
-    private generateVertexBuffer(device: GPUDevice): GPUBuffer
+    private generateVertexBuffer(device: GPUDevice, t: number[]): GPUBuffer
     {
-        let vertices = new Float32Array(this.vertices);
-        let vertexBuffer = device.createBuffer(
+        let tf = new Float32Array(t);
+        console.log(t);
+        let buffer = device.createBuffer(
             {
-                size: vertices.byteLength,
+                size: tf.byteLength,
                 usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
                 // mappedAtCreation: true
             }
         );
         // new Float32Array(vertexBuffer.getMappedRange()).set(vertices);
         // vertexBuffer.unmap();
-        device.queue.writeBuffer(vertexBuffer, 0, vertices);
+        device.queue.writeBuffer(buffer, 0, tf);
 
-        this.vertexBuffer = vertexBuffer;
-        return vertexBuffer;
+        this.vertexBuffer = buffer;
+        return buffer;
     }
 
     public addVertexAsNumbers(...x: number[]): void
     {
         this.vertices.push(...x);
+    }
+
+    public addUVAsNumbers(...x: number[]): void
+    {
+        this.uvs.push(...x);
     }
 
     public addNormalAsNumbers(...x: number[]): void
@@ -96,7 +104,6 @@ export class WebGPUMesh
         this.indices = indices;
     }
 
-
     public getVertices(): number[]
     {
         return this.vertices;
@@ -112,16 +119,9 @@ export class WebGPUMesh
         return this.indices;
     }
 
-
-    private reset(): void
-    {
-        this.vertices = new Array();
-        this.indices = null;
-    }
-
     protected from(path: string): void
     {
-        this.reset();
+        // this.reset();
 
         objLoader.load(path, this, function(this:WebGPUMesh)
         {

@@ -21,10 +21,7 @@ export class Transform
 
     public getViewTransformationMatrix(): Matrix4
     {
-        let rx = new RotationxMatrix((Math.PI / 180) * this.rotation.x);
-        let ry = new RotationyMatrix((Math.PI / 180) * this.rotation.y);
-        let rz = new RotationzMatrix((Math.PI / 180) * this.rotation.z);
-        let rm = rz.product(ry).product(rx);
+        let rm = this.getRotationMatrix();
         let tm = new TranslationMatrix(this.location);
         let sm = new ScalingMatrix(this.scale);
         return sm.product(tm).product(rm);
@@ -32,13 +29,19 @@ export class Transform
 
     public getTransformationMatrix(): Matrix4
     {
+        let rm = this.getRotationMatrix();
+        let tm = new TranslationMatrix(this.location);
+        let sm = new ScalingMatrix(this.scale);
+        return rm.product(tm).product(sm);
+    }
+
+    public getRotationMatrix(): Matrix4
+    {
         let rx = new RotationxMatrix((Math.PI / 180) * this.rotation.x);
         let ry = new RotationyMatrix((Math.PI / 180) * this.rotation.y);
         let rz = new RotationzMatrix((Math.PI / 180) * this.rotation.z);
         let rm = rz.product(ry).product(rx);
-        let tm = new TranslationMatrix(this.location);
-        let sm = new ScalingMatrix(this.scale);
-        return rm.product(tm).product(sm);
+        return rm;
     }
 
     public setLocation(location: Vector3): void
