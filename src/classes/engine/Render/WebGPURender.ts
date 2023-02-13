@@ -1,5 +1,6 @@
 import { Actor } from "../Entity/Actor.js";
-import { Matrix4 } from "../Math/Matrix4";
+import { Matrix4 } from "../Math/Matrix4.js";
+import { Vector3 } from "../Math/Vector3.js";
 import { RenderingCanvas } from "./RenderingCanvas.js";
 import { WebGPUCamera } from "./WebGPUCamera.js";
 
@@ -73,7 +74,9 @@ export class WebGPURenderer
 
     private async setupAdapter(): Promise<GPUAdapter>
     {
-        let adapter = await this.gpu.requestAdapter();
+        let adapter = await this.gpu.requestAdapter({
+            powerPreference: "high-performance"
+        });
         if(!adapter)
         {
             throw new Error("Can't get adapter");
@@ -137,13 +140,15 @@ export class WebGPURenderer
         let mView = this.matrix4x4ToGPUBuffer(camera.getTransform().getViewTransformationMatrix(), device);
         let mProj = camera.getProjectionBuffer(device);
         let mActorRot = this.matrix4x4ToGPUBuffer(actor.getTransform().getRotationMatrix(), device);
-        let uniformBuffer = this.setupUniformBuffer(mActor, mView, mProj, mActorRot, device, pipeline);
+        let resolution = this.vector3ToGPUBuffer(new Vector3(this.renderingCanvas.getCanvas().width, this.renderingCanvas.getCanvas().height, 0.0), device);
+
+        let uniformBuffer = this.setupUniformBuffer(mActor, mView, mProj, mActorRot, resolution, device, pipeline);
         passEncoder.setBindGroup(0, uniformBuffer);
         
         passEncoder.draw(actor.getMesh().getVertices().length / (3 + 2 + 3));
     }
 
-    private setupUniformBuffer(mActor: GPUBuffer, mView: GPUBuffer, mProj: GPUBuffer, mActorRot: GPUBuffer, device: GPUDevice, pipeline: GPURenderPipeline): GPUBindGroup
+    private setupUniformBuffer(mActor: GPUBuffer, mView: GPUBuffer, mProj: GPUBuffer, mActorRot: GPUBuffer, resolution: GPUBuffer, device: GPUDevice, pipeline: GPURenderPipeline): GPUBindGroup
     {
         return device.createBindGroup(
             {
@@ -191,6 +196,18 @@ export class WebGPURenderer
             }
         );
         device.queue.writeBuffer(buffer, 0, matrix);
+        return buffer;
+    }
+
+    private vector3ToGPUBuffer(vector: Vector3, device: GPUDevice): GPUBuffer
+    {
+        let buffer = device.createBuffer(
+            {
+                size: vector.byteLength,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+            }
+        );
+        device.queue.writeBuffer(buffer, 0, vector);
         return buffer;
     }
 
