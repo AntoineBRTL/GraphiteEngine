@@ -23,8 +23,7 @@ export class Transform
     {
         let rm = this.getRotationMatrix();
         let tm = new TranslationMatrix(this.location);
-        let sm = new ScalingMatrix(this.scale);
-        return sm.product(tm).product(rm);
+        return tm.product(rm);
     }
 
     public getTransformationMatrix(): Matrix4

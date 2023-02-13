@@ -28,7 +28,7 @@ export class WebGPURenderer
 
         this.setup();
         
-        this.primitiveTopology = "triangle-strip";
+        this.primitiveTopology = "triangle-list";
     }
 
     private setup(): void

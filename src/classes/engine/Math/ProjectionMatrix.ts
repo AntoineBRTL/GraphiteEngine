@@ -7,6 +7,7 @@ export class ProjectionMatrix extends Matrix4
         super();
 
         let f = 1.0 / Math.tan(fov / 2.0);
+        let f2 = 1.0 / (Math.tan(fov / 2.0) * aspect);
         let nf = 1.0 / (near - far);
 
         this[0] = -f / aspect;

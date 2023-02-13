@@ -31,7 +31,6 @@ export class WebGPUMesh
     private generateVertexBuffer(device: GPUDevice, t: number[]): GPUBuffer
     {
         let tf = new Float32Array(t);
-        console.log(t);
         let buffer = device.createBuffer(
             {
                 size: tf.byteLength,
