@@ -1,6 +1,4 @@
 import { Transform } from "../Math/Transform.js";
-import { Material } from "../Render/Material.js";
-import { Mesh } from "../Render/Mesh.js";
 import { WebGPUMaterial } from "../Render/WebGPUMaterial.js";
 import { WebGPUMesh } from "../Render/WebGPUMesh.js";
 import { WebGPURenderer } from "../Render/WebGPURender.js";

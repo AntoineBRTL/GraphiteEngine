@@ -1,3 +1,5 @@
+import { Matrix4 } from "./Matrix4.js";
+
 export class Vector3 extends Float32Array
 {
     public get x(): number { return this[0]; }
@@ -51,6 +53,17 @@ export class Vector3 extends Float32Array
     public product(vector: Vector3): Vector3
     {
         return new Vector3(this.x * vector.x, this.y * vector.y, this.z * vector.z);
+    }
+
+    public matrixProduct(matrix: Matrix4): Vector3
+    {
+		let w = 1 / ( matrix[ 3 ] * this.x + matrix[ 7 ] * this.y + matrix[ 11 ] * this.z + matrix[ 15 ] );
+
+        return new Vector3(
+            ( matrix[ 0 ] * this.x + matrix[ 4 ] * this.y + matrix[ 8 ] * this.z + matrix[ 12 ] ) * w,
+            ( matrix[ 1 ] * this.x + matrix[ 5 ] * this.y + matrix[ 9 ] * this.z + matrix[ 13 ] ) * w,
+            ( matrix[ 2 ] * this.x + matrix[ 6 ] * this.y + matrix[ 10 ] * this.z + matrix[ 14 ] ) * w
+        );
     }
 
     public cross(vector: Vector3): Vector3

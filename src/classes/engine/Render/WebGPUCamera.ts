@@ -28,7 +28,7 @@ export class WebGPUCamera extends Actor
         this.near = -0.45;
         this.far = 100.0;
 
-        this.transform.setLocation(new Vector3(0.0, 0.0, -2.0));
+        // this.transform.setLocation(new Vector3(0.0, 0.0, -2.0));
     }
 
     // TODO: optimization
