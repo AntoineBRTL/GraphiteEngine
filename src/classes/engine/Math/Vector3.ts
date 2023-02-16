@@ -60,9 +60,9 @@ export class Vector3 extends Float32Array
 		let w = 1 / ( matrix[ 3 ] * this.x + matrix[ 7 ] * this.y + matrix[ 11 ] * this.z + matrix[ 15 ] );
 
         return new Vector3(
-            ( matrix[ 0 ] * this.x + matrix[ 4 ] * this.y + matrix[ 8 ] * this.z + matrix[ 12 ] ) * w,
-            ( matrix[ 1 ] * this.x + matrix[ 5 ] * this.y + matrix[ 9 ] * this.z + matrix[ 13 ] ) * w,
-            ( matrix[ 2 ] * this.x + matrix[ 6 ] * this.y + matrix[ 10 ] * this.z + matrix[ 14 ] ) * w
+            (matrix[ 0 ] * this.x + matrix[ 4 ] * this.y + matrix[ 8 ] * this.z + matrix[ 12 ]) * w,
+            (matrix[ 1 ] * this.x + matrix[ 5 ] * this.y + matrix[ 9 ] * this.z + matrix[ 13 ]) * w,
+            (matrix[ 2 ] * this.x + matrix[ 6 ] * this.y + matrix[ 10 ] * this.z + matrix[ 14 ]) * w
         );
     }
 
