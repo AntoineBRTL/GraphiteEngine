@@ -4,7 +4,8 @@
   "description": "Graphic engine in Typescript",
   "main": "app/Main.js",
   "scripts": {
-    "start": "electron --enable-unsafe-webgpu app/Main.js"
+    "start": "electron --enable-unsafe-webgpu app/Main.js",
+    "build": "electron-forge make"
   },
   "keywords": [
     "Graphic",
@@ -18,5 +19,9 @@
   },
   "devDependencies": {
     "electron": "^6.1.12"
-  }
+  },
+  "files": [
+    "*.js",
+    ".obj"
+  ]
 }

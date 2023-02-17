@@ -1,6 +1,4 @@
 import { Actor } from "../Entity/Actor.js";
-import { Renderer } from "../Render/Renderer.js";
-import { InputSystem } from "./InputSystem.js";
 import { Thread } from "./Thread.js";
 
 export class Engine
