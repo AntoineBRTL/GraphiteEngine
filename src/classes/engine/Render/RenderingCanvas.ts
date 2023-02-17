@@ -14,11 +14,6 @@ export class RenderingCanvas
         document.body.style.padding = '0px';
     }
 
-    public generateGlContext(): WebGL2RenderingContext | null
-    {
-        return this.canvas.getContext("webgl2");
-    }
-
     public resize():void
     {
         this.canvas.width = window.innerWidth;
