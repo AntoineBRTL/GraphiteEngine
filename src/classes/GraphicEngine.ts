@@ -1,5 +1,4 @@
 import { Engine } from "./engine/Core/Engine.js";
-import { WebGPURenderer } from "./engine/Render/WebGPURender.js";
 import { Thread } from "./engine/Core/Thread.js";
 import { ENGINE_DEFAULT_TARGET_FRAMERATE } from "./engine/Core/Constants.js";
 import { InputSystem } from "./engine/Core/InputSystem.js";
@@ -17,6 +16,6 @@ export { FrameRateDebuger } from "./engine/Entity/FrameRateDebuger.js";
 export { ControlCamera } from "./engine/Entity/ControlCamera.js";
 export let fileReader = new FileReader();
 export let objLoader = new OBJLoader(fileReader);
-export let Time = new Thread(ENGINE_DEFAULT_TARGET_FRAMERATE);
-export let Input = new InputSystem(Time);
-export let Graphite = new Engine(Time);
+export let time = new Thread(ENGINE_DEFAULT_TARGET_FRAMERATE);
+export let input = new InputSystem(time);
+export let graphit = new Engine(time);
