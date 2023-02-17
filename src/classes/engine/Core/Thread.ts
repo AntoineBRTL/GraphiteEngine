@@ -1,5 +1,7 @@
 export class Thread
 {
+    public static ENGINE_DEFAULT_TARGET_FRAMERATE: number = 75;
+
     private isRunning: boolean;
     private intervalId: number;
     private targetFrameRate: number;
