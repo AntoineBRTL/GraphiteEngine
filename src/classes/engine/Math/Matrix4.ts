@@ -85,7 +85,7 @@ export class Matrix4 extends Float32Array
         return productMatrix;
     }
 
-    public added(matrix: Matrix4): Matrix4
+    public add(matrix: Matrix4): Matrix4
     {
         let additionMatrix = new Matrix4();
         for(let i = 0; i < 16; i++)
