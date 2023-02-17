@@ -1,7 +1,7 @@
 import { Vector3 } from "../Math/Vector3.js";
 import { Thread } from "./Thread.js";
 
-export class InputSystem
+export class Input
 {
     private keyPress: string[];
     private keyDown: string[];
@@ -17,13 +17,13 @@ export class InputSystem
         this.keyDown = [];
         this.keyUp = [];
 
-        window.addEventListener('keydown', function(this:InputSystem, e: KeyboardEvent)
+        window.addEventListener('keydown', function(this:Input, e: KeyboardEvent)
         {
             if(!this.keyDown.includes(e.key) && !this.keyPress.includes(e.key))
                 this.keyDown.push(e.key);
         }.bind(this));
 
-        window.addEventListener('keyup', function(this:InputSystem, e: KeyboardEvent)
+        window.addEventListener('keyup', function(this:Input, e: KeyboardEvent)
         {
             this.keyPress = this.keyPress.filter(function(key){return key != e.key;});
             this.keyDown = this.keyDown.filter(function(key){return key != e.key;});
@@ -36,7 +36,7 @@ export class InputSystem
 
         this.mousePosition = new Vector3();
 
-        window.addEventListener('mousemove', function(this:InputSystem, e: MouseEvent)
+        window.addEventListener('mousemove', function(this:Input, e: MouseEvent)
         {
             this.mousePosition = new Vector3(e.screenX, e.screenY, 0.0);
         }.bind(this));

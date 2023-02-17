@@ -1,6 +1,5 @@
 import { Actor } from "../Entity/Actor.js";
 import { ProjectionMatrix } from "../Math/ProjectionMatrix.js";
-import { Vector3 } from "../Math/Vector3.js";
 import { WebGPURenderer } from "./WebGPURender.js";
 
 export class WebGPUCamera extends Actor

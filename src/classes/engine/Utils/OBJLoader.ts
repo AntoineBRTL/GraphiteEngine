@@ -1,4 +1,4 @@
-import { WebGPUMesh } from "../Render/WebGPUMesh";
+import { WebGPUMesh } from "../Render/WebGPUMesh.js";
 import { FileReader } from "./FileReader.js";
 
 export class OBJLoader{

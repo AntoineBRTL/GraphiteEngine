@@ -1,4 +1,4 @@
-import { input, time, Vector3 } from "../../GraphicEngine.js";
+import { input, time, Vector3 } from "../../Graphite.js";
 import { WebGPUCamera } from "../Render/WebGPUCamera.js";
 
 export class ControlCamera extends WebGPUCamera

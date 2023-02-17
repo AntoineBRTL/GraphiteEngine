@@ -1,4 +1,4 @@
-import { objLoader } from "../../GraphicEngine.js";
+import { objLoader } from "../../Graphite.js";
 import { Vector3 } from "../Math/Vector3.js";
 
 export class WebGPUMesh
