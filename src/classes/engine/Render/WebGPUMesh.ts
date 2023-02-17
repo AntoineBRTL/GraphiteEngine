@@ -1,22 +1,16 @@
 import { objLoader } from "../../Graphite.js";
-import { Vector3 } from "../Math/Vector3.js";
+import { Vertex } from "./Vertex.js";
 
 export class WebGPUMesh
 {
+    /** POSITION, UV, NORMAL */
     private vertices: number[];
-    private normals: number[];
-    private uvs: number[];
-    private indices: number[] | null;
 
     private vertexBuffer: GPUBuffer | null;
 
     public constructor()
     {
         this.vertices = new Array();
-        this.normals = new Array();
-        this.uvs = new Array();
-        this.indices = null;
-
         this.vertexBuffer = null;
     }
 
@@ -51,41 +45,14 @@ export class WebGPUMesh
         this.vertices.push(...x);
     }
 
-    public addUVAsNumbers(...x: number[]): void
-    {
-        this.uvs.push(...x);
-    }
-
-    public addNormalAsNumbers(...x: number[]): void
-    {
-        this.normals.push(...x);
-    }
-
-    public addVertex(...vertex: Vector3[]): void
+    public addVertex(...vertex: Vertex[]): void
     {
         for(let vert of vertex)
         {
-            this.vertices.push(vert.x);
-            this.vertices.push(vert.y);
-            this.vertices.push(vert.z);
+            this.vertices.push(...vert.getPosition());
+            this.vertices.push(...vert.getUV());
+            this.vertices.push(...vert.getNormal());
         }
-    }
-
-    public addNormal(...normal: Vector3[]): void
-    {
-        for(let norm of normal)
-        {
-            this.normals.push(norm.x);
-            this.normals.push(norm.y);
-            this.normals.push(norm.z);
-        }
-    }
-
-    public addIndice(i: number): void
-    {
-        if(!this.indices)
-            this.indices = new Array();
-        this.indices.push(i);
     }
 
     public setVertices(vertices: number[]): void
@@ -93,40 +60,21 @@ export class WebGPUMesh
         this.vertices = vertices;
     }
 
-    public setNormals(normals: number[]): void
-    {
-        this.normals = normals;
-    }
-
-    public setIndices(indices: number[]): void
-    {
-        this.indices = indices;
-    }
-
     public getVertices(): number[]
     {
         return this.vertices;
     }
 
-    public getNormals(): number[]
+    private reset(): void
     {
-        return this.normals;
-    }
-
-    public getIndices(): number[] | null
-    {
-        return this.indices;
+        this.vertexBuffer = null;
     }
 
     protected from(path: string): void
     {
-        // this.reset();
-
         objLoader.load(path, this, function(this:WebGPUMesh)
         {
-            this.vertexBuffer = null;
-            // this.consolidateVertices();
-            // this.consolidateNormals();
+            this.reset();
         }.bind(this));
     }
 }

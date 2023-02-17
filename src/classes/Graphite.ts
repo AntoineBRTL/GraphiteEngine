@@ -26,6 +26,7 @@ export * from "./engine/Math/TranslationMatrix.js";
 export * from "./engine/Math/Vector3.js";
 /** RENDER */
 export * from "./engine/Render/RenderingCanvas.js";
+export * from "./engine/Render/Vertex.js";
 export * from "./engine/Render/WebGPUCamera.js";
 export * from "./engine/Render/WebGPUMaterial.js";
 export * from "./engine/Render/WebGPUMesh.js";
