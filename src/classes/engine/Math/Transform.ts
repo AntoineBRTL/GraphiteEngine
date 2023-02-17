@@ -29,8 +29,8 @@ export class Transform
 
     public getViewTransformationMatrix(): Matrix4
     {
-        let rm = this.getLocalRotationMatrix();
-        let tm = new TranslationMatrix(this.location);
+        let rm = this.getViewRotationMatrix();
+        let tm = new TranslationMatrix(this.location.scale(-1));
         return tm.product(rm);
     }
 
@@ -91,6 +91,21 @@ export class Transform
         return rm;
     }
 
+    private getViewRotationMatrix(): Matrix4
+    {
+        let rx: Matrix4;
+        let ry: Matrix4;
+        let rz: Matrix4;
+        let rm: Matrix4;
+
+        rx = new RotationxMatrix((Math.PI / 180) * this.rotation.x);
+        ry = new RotationyMatrix((Math.PI / 180) * this.rotation.y);
+        rz = new RotationzMatrix((Math.PI / 180) * this.rotation.z);
+        rm = rz.product(ry).product(rx);
+
+        return rm;
+    }
+
     public setLocation(location: Vector3): void
     {
         this.location = location;
@@ -124,18 +139,18 @@ export class Transform
     public getForward(): Vector3
     {
         return new Vector3(
-            Math.cos(this.rotation.z * Math.PI / 180.0) * Math.sin(this.rotation.y * Math.PI / 180.0),
-            -Math.sin(this.rotation.z * Math.PI / 180.0),
-            Math.cos(this.rotation.z * Math.PI / 180.0) * Math.cos(this.rotation.y * Math.PI / 180.0),
+            -Math.cos(this.rotation.z * Math.PI / 180.0) * Math.sin(this.rotation.y * Math.PI / 180.0),
+            Math.sin(this.rotation.z * Math.PI / 180.0),
+            -Math.cos(this.rotation.z * Math.PI / 180.0) * Math.cos(this.rotation.y * Math.PI / 180.0),
         );
     }
 
     public getRight(): Vector3
     {
         return new Vector3(
-            -Math.cos(this.rotation.y * Math.PI / 180.0),
+            Math.cos(this.rotation.y * Math.PI / 180.0),
             0.0,
-            Math.sin(this.rotation.y * Math.PI / 180.0),
+            -Math.sin(this.rotation.y * Math.PI / 180.0),
         );
     }
 

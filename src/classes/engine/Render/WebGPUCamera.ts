@@ -15,7 +15,7 @@ export class WebGPUCamera extends Actor
     {
         this.fov = fov;
     }
-    
+
     private renderer: WebGPURenderer;
 
     public constructor()
