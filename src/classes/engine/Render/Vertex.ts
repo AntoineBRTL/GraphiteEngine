@@ -1,4 +1,4 @@
-import { Vector3 } from "../Math/Vector3";
+import { Vector3 } from "../Math/Vector3.js";
 
 export class Vertex
 {
