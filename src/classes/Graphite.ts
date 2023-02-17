@@ -35,7 +35,6 @@ export * from "./engine/Render/WebGPUShader.js";
 export * from "./engine/Utils/FileReader.js";
 export * from "./engine/Utils/OBJLoader.js";
 
-/** GLOBAL */
 export let fileReader: FileReader = new FileReader();
 export let objLoader: OBJLoader = new OBJLoader(fileReader);
 export let time: Thread = new Thread(Thread.ENGINE_DEFAULT_TARGET_FRAMERATE);
