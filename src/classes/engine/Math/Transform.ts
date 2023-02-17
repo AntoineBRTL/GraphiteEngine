@@ -29,7 +29,7 @@ export class Transform
 
     public getViewTransformationMatrix(): Matrix4
     {
-        let rm = this.getRotationMatrix(this.rotation);
+        let rm = this.getLocalRotationMatrix();
         let tm = new TranslationMatrix(this.location);
         return tm.product(rm);
     }
@@ -39,30 +39,55 @@ export class Transform
         let rm: Matrix4;
         let tm: Matrix4;
         let sm: Matrix4;
+        let fm: Matrix4;
+
+        rm = this.getLocalRotationMatrix();
+        tm = new TranslationMatrix(this.location);
+        sm = new ScalingMatrix(this.scale);
 
         if(this.parent)
         {
-            rm = this.getRotationMatrix(this.rotation.matrixProduct(this.parent.getRotationMatrix(this.parent.getRotation())));
-            tm = new TranslationMatrix(this.location.add(this.parent.getLocation().scale(-1)));
-            sm = new ScalingMatrix(this.scale.product(this.parent.getScale()));
-        }
-        else
-        {
-            rm = this.getRotationMatrix(this.rotation);
-            tm = new TranslationMatrix(this.location);
-            sm = new ScalingMatrix(this.scale);
-        }
-        
+            let ttransformationMatrix: Matrix4;
+            let ptranformationMatrix: Matrix4;
 
-        return rm.product(tm).product(sm);
+            ttransformationMatrix = (rm.product(tm).product(sm));
+            ptranformationMatrix = this.parent.getTransformationMatrix();
+
+            fm = (ttransformationMatrix).product(ptranformationMatrix);
+            return fm;
+        }
+
+        fm = (rm.product(tm).product(sm))
+        
+        return fm;
     }
 
-    public getRotationMatrix(vector: Vector3): Matrix4
+    public getRotationMatrix(): Matrix4
     {
-        let rx = new RotationxMatrix((Math.PI / 180) * vector.x);
-        let ry = new RotationyMatrix((Math.PI / 180) * vector.y);
-        let rz = new RotationzMatrix((Math.PI / 180) * vector.z);
-        let rm = rz.product(ry).product(rx);
+        let rm: Matrix4;
+
+        rm = this.getLocalRotationMatrix();
+
+        if(this.parent)
+        {
+            return rm.product(this.parent.getRotationMatrix()); 
+        }
+        
+        return rm;
+    }
+
+    private getLocalRotationMatrix(): Matrix4
+    {
+        let rx: Matrix4;
+        let ry: Matrix4;
+        let rz: Matrix4;
+        let rm: Matrix4;
+
+        rx = new RotationxMatrix((Math.PI / 180) * this.rotation.x);
+        ry = new RotationyMatrix((Math.PI / 180) * this.rotation.y);
+        rz = new RotationzMatrix((Math.PI / 180) * this.rotation.z);
+        rm = rz.product(ry).product(rx);
+
         return rm;
     }
 
@@ -108,9 +133,9 @@ export class Transform
     public getRight(): Vector3
     {
         return new Vector3(
-            Math.cos(this.rotation.y * Math.PI / 180.0),
+            -Math.cos(this.rotation.y * Math.PI / 180.0),
             0.0,
-            -Math.sin(this.rotation.y * Math.PI / 180.0),
+            Math.sin(this.rotation.y * Math.PI / 180.0),
         );
     }
 

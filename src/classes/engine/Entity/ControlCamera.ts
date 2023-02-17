@@ -22,7 +22,7 @@ export class ControlCamera extends WebGPUCamera
 
         window.addEventListener('mousemove', function(this: ControlCamera, event: MouseEvent)
         {
-            this.transform.setRotation(this.transform.getRotation().add(new Vector3(event.movementY, event.movementX, 0.0).scale(this.sensitivity * Time.getDeltaTime())));
+            this.transform.setRotation(this.transform.getRotation().add(new Vector3(-event.movementY, -event.movementX, 0.0).scale(this.sensitivity * Time.getDeltaTime())));
         }.bind(this));
     }
 
@@ -43,9 +43,9 @@ export class ControlCamera extends WebGPUCamera
             this.transform.setLocation(this.transform.getLocation().add(this.transform.getRight().scale(this.speed * Time.getDeltaTime())));
 
         if(Input.getKeyPress(" "))
-            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, this.flySpeed, 0.0).scale(Time.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, -this.flySpeed, 0.0).scale(Time.getDeltaTime())));
 
         if(Input.getKeyPress("Shift"))
-            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, -this.flySpeed, 0.0).scale(Time.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, this.flySpeed, 0.0).scale(Time.getDeltaTime())));
     }
 }

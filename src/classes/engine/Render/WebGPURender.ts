@@ -139,7 +139,7 @@ export class WebGPURenderer
         let mActor = this.matrix4x4ToGPUBuffer(actor.getTransform().getTransformationMatrix(), device);
         let mView = this.matrix4x4ToGPUBuffer(camera.getTransform().getViewTransformationMatrix(), device);
         let mProj = camera.getProjectionBuffer(device);
-        let mActorRot = this.matrix4x4ToGPUBuffer(actor.getTransform().getRotationMatrix(actor.getTransform().getRotation()), device);
+        let mActorRot = this.matrix4x4ToGPUBuffer(actor.getTransform().getRotationMatrix(), device);
         let resolution = this.vector3ToGPUBuffer(new Vector3(this.renderingCanvas.getCanvas().width, this.renderingCanvas.getCanvas().height, 0.0), device);
 
         let uniformBuffer = this.setupUniformBuffer(mActor, mView, mProj, mActorRot, resolution, device, pipeline);
