@@ -7,3 +7,4 @@
 /src/classes/*.js
 /src/classes/engine/*.js
 /src/classes/engine/*/*.js
+/dist/*
