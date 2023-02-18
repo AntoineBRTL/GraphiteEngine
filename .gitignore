@@ -8,3 +8,4 @@
 /Engine/*.js
 /Engine/Classes/*/*.js
 /dist/*
+/package.json
