@@ -4,8 +4,6 @@ import { WebGPURenderer } from "./WebGPURender.js";
 
 export class WebGPUCamera extends Actor
 {
-    private static Cameras: WebGPUCamera[] = [];
-
     protected fov: number;
     protected near: number;
     protected far: number;
@@ -21,8 +19,6 @@ export class WebGPUCamera extends Actor
     {
         super();
         this.renderer = new WebGPURenderer();
-
-        WebGPUCamera.Cameras.push(this);
 
         this.fov = 60.0;
         this.near = 0.01;
