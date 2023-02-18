@@ -36,9 +36,9 @@ export * from "./engine/Render/WebGPUShader.js";
 export * from "./engine/Utils/FileReader.js";
 export * from "./engine/Utils/OBJLoader.js";
 
-export let fileReader: FileReader = new FileReader();
-export let objLoader: OBJLoader = new OBJLoader(fileReader);
-export let inputThread: Thread = new Thread(Thread.ENGINE_DEFAULT_TARGET_FRAMERATE);    /** INPUT THREAD */
-export let renderThread: Thread = new Thread(Thread.ENGINE_DEFAULT_TARGET_FRAMERATE);   /** MAIN THREAD */
-export let input: Input = new Input(inputThread);
-export let graphite: Engine = new Engine(renderThread);
+export let fileReader:      FileReader  = new FileReader();
+export let objLoader:       OBJLoader   = new OBJLoader(fileReader);
+export let inputThread:     Thread      = new Thread(Thread.ENGINE_DEFAULT_TARGET_FRAMERATE);       /** INPUT THREAD */
+export let renderThread:    Thread      = new Thread(Thread.ENGINE_DEFAULT_TARGET_FRAMERATE);       /** MAIN THREAD */
+export let input:           Input       = new Input(inputThread);
+export let graphite:        Engine      = new Engine(renderThread);
