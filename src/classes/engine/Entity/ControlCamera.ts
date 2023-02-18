@@ -1,4 +1,4 @@
-import { input, time, Vector3 } from "../../Graphite.js";
+import { input, renderThread, Vector3 } from "../../Graphite.js";
 import { WebGPUCamera } from "../Render/WebGPUCamera.js";
 
 export class ControlCamera extends WebGPUCamera
@@ -22,7 +22,7 @@ export class ControlCamera extends WebGPUCamera
 
         window.addEventListener('mousemove', function(this: ControlCamera, event: MouseEvent)
         {
-            this.transform.setRotation(this.transform.getRotation().add(new Vector3(-event.movementY, -event.movementX, 0.0).scale(this.sensitivity * time.getDeltaTime())));
+            this.transform.setRotation(this.transform.getRotation().add(new Vector3(-event.movementY, -event.movementX, 0.0).scale(this.sensitivity * renderThread.getDeltaTime())));
         }.bind(this));
     }
 
@@ -31,21 +31,21 @@ export class ControlCamera extends WebGPUCamera
         super.update();
         
         if(input.getKeyPress("z"))
-            this.transform.setLocation(this.transform.getLocation().add(this.transform.getForward().scale(this.speed * time.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(this.transform.getForward().scale(this.speed * renderThread.getDeltaTime())));
 
         if(input.getKeyPress("s"))
-            this.transform.setLocation(this.transform.getLocation().add(this.transform.getBackward().scale(this.speed * time.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(this.transform.getBackward().scale(this.speed * renderThread.getDeltaTime())));
 
         if(input.getKeyPress("q"))
-            this.transform.setLocation(this.transform.getLocation().add(this.transform.getLeft().scale(this.speed * time.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(this.transform.getLeft().scale(this.speed * renderThread.getDeltaTime())));
 
         if(input.getKeyPress("d"))
-            this.transform.setLocation(this.transform.getLocation().add(this.transform.getRight().scale(this.speed * time.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(this.transform.getRight().scale(this.speed * renderThread.getDeltaTime())));
 
         if(input.getKeyPress(" "))
-            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, this.flySpeed, 0.0).scale(time.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, this.flySpeed, 0.0).scale(renderThread.getDeltaTime())));
 
         if(input.getKeyPress("Shift"))
-            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, -this.flySpeed, 0.0).scale(time.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, -this.flySpeed, 0.0).scale(renderThread.getDeltaTime())));
     }
 }

@@ -39,7 +39,6 @@ export class Thread
             this.finishedFrame = false;
 
             this.onTick();
-            this.onInputTick();
 
             this.deltaTime = (performance.now() - this.lastTime) / 1e3;
             this.lastTime = performance.now();
@@ -49,7 +48,6 @@ export class Thread
     }
 
     public onTick(): void {};
-    public onInputTick(): void {};
 
     public launch(): void
     {

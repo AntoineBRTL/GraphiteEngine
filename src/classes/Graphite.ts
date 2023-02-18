@@ -38,6 +38,7 @@ export * from "./engine/Utils/OBJLoader.js";
 
 export let fileReader: FileReader = new FileReader();
 export let objLoader: OBJLoader = new OBJLoader(fileReader);
-export let time: Thread = new Thread(Thread.ENGINE_DEFAULT_TARGET_FRAMERATE);
-export let input: Input = new Input(time);
-export let graphite: Engine = new Engine(time);
+export let inputThread: Thread = new Thread(Thread.ENGINE_DEFAULT_TARGET_FRAMERATE);
+export let renderThread: Thread = new Thread(Thread.ENGINE_DEFAULT_TARGET_FRAMERATE);
+export let input: Input = new Input(inputThread);
+export let graphite: Engine = new Engine(renderThread);
