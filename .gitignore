@@ -4,7 +4,7 @@
 /node_modules
 /package-lock.json
 /tsconfig.json
-/src/classes/*.js
-/src/classes/engine/*.js
-/src/classes/engine/*/*.js
+/Engine/Classes/*.js
+/Engine/*.js
+/Engine/Classes/*/*.js
 /dist/*
