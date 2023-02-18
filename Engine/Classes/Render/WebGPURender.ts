@@ -99,7 +99,7 @@ export class WebGPURenderer
     /**
      * Renders an actor using a camera.
      */
-    private renderActor(actor: Actor, camera: WebGPUCamera, passEncoder: GPURenderPassEncoder, device: GPUDevice): void
+    private renderActor(device: GPUDevice, passEncoder: GPURenderPassEncoder, actor: Actor, camera: WebGPUCamera): void
     {
         let pipeline: GPURenderPipeline;
         let vertexBuffer: GPUBuffer;
@@ -172,7 +172,7 @@ export class WebGPURenderer
         passEncoder     = this.getPassEncoder(commandEncoder, view, this.depthView);
 
         for(let actor of actors) if(actor != camera)
-            this.renderActor(actor, camera, passEncoder, this.device);
+            this.renderActor(this.device, passEncoder, actor, camera);
 
         passEncoder.end();
         this.device.queue.submit([commandEncoder.finish()]);
