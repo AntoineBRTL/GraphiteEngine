@@ -54,6 +54,9 @@ export class WebGPURenderer
 
     private primitiveTopology: GPUPrimitiveTopology;
 
+    /**
+     * Creates a new WebGPURenderer.
+     */
     public constructor()
     {
         this.usePostProcessing              = false;
@@ -76,6 +79,9 @@ export class WebGPURenderer
         this.primitiveTopology = "triangle-list";
     }
 
+    /**
+     * Finalizes the setup of a renderer.
+     */
     private finalize(device: GPUDevice): void
     {
         this.device                 = device;
@@ -90,6 +96,9 @@ export class WebGPURenderer
         window.addEventListener("resize", this.resize.bind(this, device));
     }
 
+    /**
+     * Renders an actor using a camera.
+     */
     private renderActor(actor: Actor, camera: WebGPUCamera, passEncoder: GPURenderPassEncoder, device: GPUDevice): void
     {
         let pipeline: GPURenderPipeline;
@@ -111,6 +120,9 @@ export class WebGPURenderer
         this.draw(passEncoder, pipeline, actor.getMesh(), vertexBuffer, uniformBindingGroup);
     }
 
+    /**
+     * Renders post-processing effects.
+     */
     private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, depthView: GPUTextureView, pipeline: GPURenderPipeline, frameTexture: GPUTexture, sampler: GPUSampler): void
     {
         let commandEncoder: GPUCommandEncoder;
@@ -122,7 +134,7 @@ export class WebGPURenderer
         commandEncoder          = device.createCommandEncoder();
         view                    = this.getTextureView(context);
         passEncoder             = this.getPassEncoder(commandEncoder, view, depthView);
-        uniformBindingGroup     = this.setupPostProcessingUniformBindGroup(device, pipeline, frameTexture, sampler);
+        uniformBindingGroup     = this.setupUniformBindGroup(device, pipeline, 0, frameTexture, sampler);
         vertexBuffer            = this.quadMesh.getVertexBuffer(device);
 
         this.draw(passEncoder, pipeline, this.quadMesh, vertexBuffer, uniformBindingGroup);
@@ -130,6 +142,9 @@ export class WebGPURenderer
         device.queue.submit([commandEncoder.finish()]);
     }
 
+    /**
+     * Draws.
+     */
     private draw(passEncoder: GPURenderPassEncoder, pipeline: GPURenderPipeline, mesh:WebGPUMesh, vertexBuffer: GPUBuffer, ...uniformBindingGroups: Array<GPUBindGroup>): void
     {
         passEncoder.setPipeline(pipeline);
@@ -138,6 +153,9 @@ export class WebGPURenderer
         passEncoder.draw(mesh.getVertices().length / (3 + 2 + 3)); /** POSITION UV NORMAL */
     }
 
+    /**
+     * Render an array of actors using a specific camera.
+     */
     public render(actors: Actor[], camera: WebGPUCamera): void
     {
         if(!this.device 
@@ -160,6 +178,9 @@ export class WebGPURenderer
         this.device.queue.submit([commandEncoder.finish()]);
     }
 
+    /**
+     * Setups the quad mesh used for post-processing.
+     */
     private setupQuadMesh(): WebGPUMesh
     {
         let quadMesh: WebGPUMesh;
@@ -177,6 +198,9 @@ export class WebGPURenderer
         return quadMesh;
     }
 
+    /**
+     * Setups a renderer.
+     */
     private setup(): void
     {
         this.setupAdapter()
@@ -187,11 +211,17 @@ export class WebGPURenderer
         }.bind(this));
     }
 
+    /**
+     * Setups a sampler.
+     */
     private setupSampler(device: GPUDevice): GPUSampler
     {
         return device.createSampler({magFilter: 'linear', minFilter: 'linear'});
     }
 
+    /**
+     * Setups a depth texture.
+     */
     private setupDepthTexture(device: GPUDevice, canvas:HTMLCanvasElement): GPUTexture
     {
         let depthTexture: GPUTexture;
@@ -203,6 +233,9 @@ export class WebGPURenderer
         return depthTexture;
     }
 
+    /**
+     * Setups a depth view.
+     */
     private setupDepthView(device: GPUDevice): GPUTextureView
     {
         let depthTexture: GPUTexture;
@@ -214,6 +247,9 @@ export class WebGPURenderer
         return depthView;
     }
 
+    /**
+     * Setups the gpu.
+     */
     private setupGPU(): GPU
     {
         let gpu: GPU;
@@ -223,6 +259,9 @@ export class WebGPURenderer
         return gpu;
     }
 
+    /**
+     * Setups an adapter.
+     */
     private async setupAdapter(): Promise<GPUAdapter>
     {
         let adapter: GPUAdapter | null;
@@ -232,6 +271,9 @@ export class WebGPURenderer
         return adapter;
     }
 
+    /**
+     * Setups a device.
+     */
     private async setupDevice(adapter: GPUAdapter): Promise<GPUDevice>
     {
         let device: GPUDevice | undefined;
@@ -241,6 +283,9 @@ export class WebGPURenderer
         return device;
     }
 
+    /**
+     * Setups a context.
+     */
     private setupContext(device: GPUDevice, canvas: HTMLCanvasElement): GPUCanvasContext
     {
         let context: GPUCanvasContext | null;
@@ -251,6 +296,9 @@ export class WebGPURenderer
         return context;
     }
 
+    /**
+     * Resizes a renderer.
+     */
     private resize(device: GPUDevice): void
     {
         this.renderingCanvas.resize();
@@ -258,6 +306,9 @@ export class WebGPURenderer
         this.depthView = this.setupDepthView(device);
     }
 
+    /**
+     * Gets a context config.
+     */
     private getContextConfig(device: GPUDevice): GPUCanvasConfiguration
     {
         return {
@@ -268,47 +319,71 @@ export class WebGPURenderer
         };
     }
 
+    /**
+     * Gets the renderer pipeline of an actor.
+     */
     private getActorPipeline(actor: Actor): GPURenderPipeline
     {
         return actor.getMaterial().getRenderPipeline(this);
     }
 
+    /**
+     * Gets the primitive topology of a renderer.
+     */
     public getPrimitiveTopology(): GPUPrimitiveTopology
     {
         return this.primitiveTopology;
     }
 
+    /**
+     * Gets the device of a renderer.
+     */
     public getDevice(): GPUDevice
     {
         if(!this.device) throw new Error("Error: Device not found");
         return this.device;
     }
 
+    /**
+     * Gets the gpu of a renderer.
+     */
     public getGPU(): GPU
     {
         return this.gpu;
     }
 
+    /**
+     * Gets the rendering canvas of a renderer.
+     */
     public getRenderingCanvas(): RenderingCanvas
     {
         return this.renderingCanvas;
     }
 
+    /**
+     * Gets the post-processing rendering canvas of a renderer.
+     */
     public getPostProcessingRenderingCanvas(): RenderingCanvas
     {
         return this.postProcessingRenderingCanvas;
     }
 
-    private toUniformGPUBuffer(device: GPUDevice, value: Float32Array): GPUBuffer
+    /**
+     * Generates a buffer from an iterable.
+     */
+    private toUniformGPUBuffer(device: GPUDevice, iterable: Float32Array): GPUBuffer
     {
         let buffer: GPUBuffer;
-        buffer = device.createBuffer({size: value.byteLength, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST});
-        device.queue.writeBuffer(buffer, 0, value);
+        buffer = device.createBuffer({size: iterable.byteLength, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST});
+        device.queue.writeBuffer(buffer, 0, iterable);
         
         return buffer;
     }
 
-    private getTextureFromCanvas(device: GPUDevice, canvas: HTMLCanvasElement, commandEncoder:GPUCommandEncoder, swapChainTexture: GPUTexture): GPUTexture
+    /**
+     * Gets a texture from the last render.
+     */
+    private getTextureFromRender(device: GPUDevice, canvas: HTMLCanvasElement, commandEncoder:GPUCommandEncoder, swapChainTexture: GPUTexture): GPUTexture
     {
         let texture: GPUTexture;
 
@@ -320,11 +395,17 @@ export class WebGPURenderer
         return texture;
     }
 
+    /**
+     * Gets a view from the last render.
+     */
     private getTextureView(context: GPUCanvasContext): GPUTextureView
     {
         return context.getCurrentTexture().createView();
     }
 
+    /**
+     * Gets a pass encoder.
+     */
     private getPassEncoder(commandEncoder: GPUCommandEncoder, view: GPUTextureView, depthView: GPUTextureView): GPURenderPassEncoder
     {
         let renderPassDescriptor: GPURenderPassDescriptor;
@@ -349,6 +430,9 @@ export class WebGPURenderer
         return commandEncoder.beginRenderPass(renderPassDescriptor);
     }
 
+    /**
+     * Setups a post-processing rendering pipeline.
+     */
     private setupPostProcessingPipeline(device: GPUDevice): GPURenderPipeline
     {
         let pipeline: GPURenderPipeline;
@@ -412,42 +496,38 @@ export class WebGPURenderer
 
         return pipeline;
     }
-    
-    private setupPostProcessingUniformBindGroup(device: GPUDevice, pipeline: GPURenderPipeline, texture: GPUTexture, sampler:GPUSampler): GPUBindGroup
-    {
-        return device.createBindGroup(
-            {
-                layout: pipeline.getBindGroupLayout(0),
-                entries: [
-                    {
-                        binding: 0,
-                        resource: texture.createView()
-                    },
-                    {
-                        binding: 1,
-                        resource: sampler
-                    }
-                ]
-            }
-        )
+
+    /**
+     * Gets a bind-group entry resource from a buffer, a texture or a sampler.
+     */
+    private getBindGroupEntryResource(entry: GPUBuffer | GPUTexture | GPUSampler): GPUBindingResource
+    {        
+        if(entry instanceof GPUBuffer)
+            return {buffer: entry};
+
+        if(entry instanceof GPUTexture)
+            return entry.createView();
+
+        return entry;
     }
 
-    private setupUniformBindGroup(device: GPUDevice, pipeline: GPURenderPipeline, bindingIndex:number, ...buffers: Array<GPUBuffer>): GPUBindGroup
+    /**
+     * Setups a bind group used for uniforms.
+     */
+    private setupUniformBindGroup(device: GPUDevice, pipeline: GPURenderPipeline, bindingIndex:number, ...buffers: Array<GPUBuffer | GPUTexture | GPUSampler>): GPUBindGroup
     {
         let entries: Array<GPUBindGroupEntry>;
         entries = new Array<GPUBindGroupEntry>();
 
         for(let i = 0; i < buffers.length; i++) 
-            entries.push({binding: i, resource: {buffer: buffers[i]}});
+            entries.push({binding: i, resource: this.getBindGroupEntryResource(buffers[i])});
 
-        return device.createBindGroup(
-            {
-                layout: pipeline.getBindGroupLayout(bindingIndex),
-                entries: entries
-            }
-        );
+        return device.createBindGroup({layout: pipeline.getBindGroupLayout(bindingIndex), entries: entries});
     }
 
+    /**
+     * Sets the use of post-processing.
+     */
     public setUsePostProcessing(use: boolean): void
     {
         this.usePostProcessing = use;
