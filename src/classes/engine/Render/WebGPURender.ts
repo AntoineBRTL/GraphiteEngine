@@ -248,15 +248,14 @@ export class WebGPURenderer
         let mView = this.matrix4x4ToGPUBuffer(camera.getTransform().getViewTransformationMatrix(), device);
         let mProj = camera.getProjectionBuffer(device);
         let mActorRot = this.matrix4x4ToGPUBuffer(actor.getTransform().getRotationMatrix(), device);
-        let resolution = this.vector3ToGPUBuffer(new Vector3(this.renderingCanvas.getCanvas().width, this.renderingCanvas.getCanvas().height, 0.0), device);
 
-        let uniformBuffer = this.setupUniformBuffer(mActor, mView, mProj, mActorRot, resolution, device, pipeline);
+        let uniformBuffer = this.setupUniformBuffer(mActor, mView, mProj, mActorRot, device, pipeline);
         passEncoder.setBindGroup(0, uniformBuffer);
         
         passEncoder.draw(actor.getMesh().getVertices().length / (3 + 2 + 3));
     }
 
-    private setupUniformBuffer(mActor: GPUBuffer, mView: GPUBuffer, mProj: GPUBuffer, mActorRot: GPUBuffer, resolution: GPUBuffer, device: GPUDevice, pipeline: GPURenderPipeline): GPUBindGroup
+    private setupUniformBuffer(mActor: GPUBuffer, mView: GPUBuffer, mProj: GPUBuffer, mActorRot: GPUBuffer, device: GPUDevice, pipeline: GPURenderPipeline): GPUBindGroup
     {
         return device.createBindGroup(
             {
