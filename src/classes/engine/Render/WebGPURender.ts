@@ -422,7 +422,7 @@ export class WebGPURenderer
 
     public render(actors: Actor[], camera: WebGPUCamera): void
     {
-        if(!this.device || !this.context || !this.depthView || !this.postProcessingContext || !this.quadVertexBuffer || !this.postProcessingPipeline || !this.sampler)
+        if(!this.device || !this.context || !this.depthView)
             return;
 
         let commandEncoder = this.device.createCommandEncoder();
@@ -454,17 +454,20 @@ export class WebGPURenderer
 
         passEncoder.end();
 
-        if(this.usePostProcessing)
-        {
-            let frameTexture = this.getTextureFromCanvas(this.device, this.renderingCanvas.getCanvas(), commandEncoder, this.context.getCurrentTexture());
-            this.device.queue.submit([commandEncoder.finish()]);
+        this.device.queue.submit([commandEncoder.finish()]);
 
-            this.renderPostProcessing(this.device, this.postProcessingContext, this.quadVertexBuffer, this.postProcessingPipeline, frameTexture, this.sampler);
-        }
-        else
-        {
-            this.device.queue.submit([commandEncoder.finish()]);
-        }
+        /** IMPORTANT NUMBER OF LOST FRAMES */
+        // if(this.usePostProcessing && this.postProcessingContext && this.quadVertexBuffer && this.postProcessingPipeline && this.sampler))
+        // {
+        //     let frameTexture = this.getTextureFromCanvas(this.device, this.renderingCanvas.getCanvas(), commandEncoder, this.context.getCurrentTexture());
+        //     this.device.queue.submit([commandEncoder.finish()]);
+
+        //     this.renderPostProcessing(this.device, this.postProcessingContext, this.quadVertexBuffer, this.postProcessingPipeline, frameTexture, this.sampler);
+        // }
+        // else
+        // {
+            
+        // }
     }
 
     public getPrimitiveTopology(): GPUPrimitiveTopology
