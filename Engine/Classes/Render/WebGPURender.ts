@@ -98,21 +98,17 @@ export class WebGPURenderer
         let mViewBuffer: GPUBuffer;
         let mProjBuffer: GPUBuffer;
         let mActorRotBuffer: GPUBuffer;
-        let uniformBuffer: GPUBindGroup;
+        let uniformBindingGroup: GPUBindGroup;
 
-        pipeline        = this.getActorPipeline(actor);
-        vertexBuffer    = actor.getMesh().getVertexBuffer(device);
-        mActorBuffer    = this.toUniformGPUBuffer(actor.getTransform().getTransformationMatrix(), device);
-        mViewBuffer     = this.toUniformGPUBuffer(camera.getTransform().getViewTransformationMatrix(), device);
-        mProjBuffer     = camera.getProjectionBuffer(device);
-        mActorRotBuffer = this.toUniformGPUBuffer(actor.getTransform().getRotationMatrix(), device);
-        uniformBuffer   = this.setupUniformBindGroup(mActorBuffer, mViewBuffer, mProjBuffer, mActorRotBuffer, device, pipeline);
+        pipeline                = this.getActorPipeline(actor);
+        vertexBuffer            = actor.getMesh().getVertexBuffer(device);
+        mActorBuffer            = this.toUniformGPUBuffer(device, actor.getTransform().getTransformationMatrix());
+        mViewBuffer             = this.toUniformGPUBuffer(device, camera.getTransform().getViewTransformationMatrix());
+        mProjBuffer             = camera.getProjectionBuffer(device);
+        mActorRotBuffer         = this.toUniformGPUBuffer(device, actor.getTransform().getRotationMatrix());
+        uniformBindingGroup     = this.setupUniformBindGroup(device, pipeline, 0, mActorBuffer, mViewBuffer, mProjBuffer, mActorRotBuffer);
 
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setVertexBuffer(0, vertexBuffer);
-        passEncoder.setBindGroup(0, uniformBuffer);
-        
-        passEncoder.draw(actor.getMesh().getVertices().length / (3 + 2 + 3)); /** POSITION UV NORMAL */
+        this.draw(passEncoder, pipeline, actor.getMesh(), vertexBuffer, uniformBindingGroup);
     }
 
     private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, depthView: GPUTextureView, pipeline: GPURenderPipeline, frameTexture: GPUTexture, sampler: GPUSampler): void
@@ -120,22 +116,26 @@ export class WebGPURenderer
         let commandEncoder: GPUCommandEncoder;
         let view: GPUTextureView;
         let passEncoder: GPURenderPassEncoder;
-        let uniformBuffer: GPUBindGroup;
+        let uniformBindingGroup: GPUBindGroup;
         let vertexBuffer: GPUBuffer;
 
-        commandEncoder  = device.createCommandEncoder();
-        view            = this.getTextureView(context);
-        passEncoder     = this.getPassEncoder(commandEncoder, view, depthView);
-        uniformBuffer   = this.setupPostProcessingUniformBuffer(device, frameTexture, sampler, pipeline);
-        vertexBuffer    = this.quadMesh.getVertexBuffer(device);
+        commandEncoder          = device.createCommandEncoder();
+        view                    = this.getTextureView(context);
+        passEncoder             = this.getPassEncoder(commandEncoder, view, depthView);
+        uniformBindingGroup     = this.setupPostProcessingUniformBindGroup(device, pipeline, frameTexture, sampler);
+        vertexBuffer            = this.quadMesh.getVertexBuffer(device);
 
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setVertexBuffer(0, vertexBuffer);
-        passEncoder.setBindGroup(0, uniformBuffer);
-
-        passEncoder.draw(this.quadMesh.getVertices().length / (3 + 2 + 3));
+        this.draw(passEncoder, pipeline, this.quadMesh, vertexBuffer, uniformBindingGroup);
         passEncoder.end();
         device.queue.submit([commandEncoder.finish()]);
+    }
+
+    private draw(passEncoder: GPURenderPassEncoder, pipeline: GPURenderPipeline, mesh:WebGPUMesh, vertexBuffer: GPUBuffer, ...uniformBindingGroups: Array<GPUBindGroup>): void
+    {
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setVertexBuffer(0, vertexBuffer);
+        for(let uniformBindingGroup of uniformBindingGroups) passEncoder.setBindGroup(0, uniformBindingGroup);
+        passEncoder.draw(mesh.getVertices().length / (3 + 2 + 3)); /** POSITION UV NORMAL */
     }
 
     public render(actors: Actor[], camera: WebGPUCamera): void
@@ -299,7 +299,7 @@ export class WebGPURenderer
         return this.postProcessingRenderingCanvas;
     }
 
-    private toUniformGPUBuffer(value: Float32Array, device: GPUDevice): GPUBuffer
+    private toUniformGPUBuffer(device: GPUDevice, value: Float32Array): GPUBuffer
     {
         let buffer: GPUBuffer;
         buffer = device.createBuffer({size: value.byteLength, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST});
@@ -413,7 +413,7 @@ export class WebGPURenderer
         return pipeline;
     }
     
-    private setupPostProcessingUniformBuffer(device: GPUDevice, texture: GPUTexture, sampler:GPUSampler, pipeline: GPURenderPipeline): GPUBindGroup
+    private setupPostProcessingUniformBindGroup(device: GPUDevice, pipeline: GPURenderPipeline, texture: GPUTexture, sampler:GPUSampler): GPUBindGroup
     {
         return device.createBindGroup(
             {
@@ -432,41 +432,18 @@ export class WebGPURenderer
         )
     }
 
-    private setupUniformBindGroup(mActor: GPUBuffer, mView: GPUBuffer, mProj: GPUBuffer, mActorRot: GPUBuffer, device: GPUDevice, pipeline: GPURenderPipeline): GPUBindGroup
+    private setupUniformBindGroup(device: GPUDevice, pipeline: GPURenderPipeline, bindingIndex:number, ...buffers: Array<GPUBuffer>): GPUBindGroup
     {
+        let entries: Array<GPUBindGroupEntry>;
+        entries = new Array<GPUBindGroupEntry>();
+
+        for(let i = 0; i < buffers.length; i++) 
+            entries.push({binding: i, resource: {buffer: buffers[i]}});
+
         return device.createBindGroup(
             {
-                layout: pipeline.getBindGroupLayout(0),
-                entries: [
-                    {
-                        binding: 0,
-                        resource: 
-                        {
-                            buffer: mActor
-                        }
-                    },
-                    {
-                        binding: 1,
-                        resource: 
-                        {
-                            buffer: mView
-                        }
-                    },
-                    {
-                        binding: 2,
-                        resource: 
-                        {
-                            buffer: mProj
-                        }
-                    },
-                    {
-                        binding: 3,
-                        resource: 
-                        {
-                            buffer: mActorRot
-                        }
-                    }
-                ]
+                layout: pipeline.getBindGroupLayout(bindingIndex),
+                entries: entries
             }
         );
     }
