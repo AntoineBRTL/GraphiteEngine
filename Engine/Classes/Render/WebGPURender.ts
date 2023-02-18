@@ -87,8 +87,8 @@ export class WebGPURenderer
     private finalize(device: GPUDevice): void
     {
         this.device                 = device;
-        this.ctx                = this.setupContext(device, this.renderingCanvas.getCanvas());
-        this.ppctx  = this.setupContext(device, this.ppRenderingCanvas.getCanvas());
+        this.ctx                    = this.setupContext(device, this.renderingCanvas.getCanvas());
+        this.ppctx                  = this.setupContext(device, this.ppRenderingCanvas.getCanvas());
         this.depthView              = this.setupDepthView(device);
         this.quadMesh               = this.setupQuadMesh();
         this.sampler                = this.setupSampler(device);
