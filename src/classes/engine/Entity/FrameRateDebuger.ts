@@ -25,6 +25,6 @@ export class FrameRateDebuger extends Actor
 
     public override update(): void 
     {
-        this.div.innerHTML = (1.0 / this.thread.getDeltaTime()).toFixed(1).toString();
+        this.div.innerHTML = (1.0 / this.thread.getDeltaTime()).toFixed(0).toString();
     }
 }
