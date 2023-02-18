@@ -15,9 +15,9 @@ export class ControlCamera extends WebGPUCamera
         this.flySpeed = 10.0;
         this.sensitivity = 30.0;
 
-        this.getRenderer().getRenderingCanvas().getCanvas().addEventListener("click", function(this:ControlCamera)
+        this.getRenderer().getUsedCanvas().getCanvas().addEventListener("click", function(this:ControlCamera)
         {
-            this.getRenderer().getRenderingCanvas().getCanvas().requestPointerLock();
+            this.getRenderer().getUsedCanvas().getCanvas().requestPointerLock();
         }.bind(this));
 
         window.addEventListener('mousemove', function(this: ControlCamera, event: MouseEvent)

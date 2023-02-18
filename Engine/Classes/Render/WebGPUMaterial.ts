@@ -36,11 +36,13 @@ export class WebGPUMaterial
 {
     private vertexShader: WebGPUShader;
     private fragmentShader: WebGPUShader;
+    private pipeline: GPURenderPipeline | null;
 
     public constructor()
     {
         this.vertexShader = new WebGPUShader(vertexShader);
         this.fragmentShader = new WebGPUShader(fragmentShader);
+        this.pipeline = null;
     }
 
     private getVertexShader(device: GPUDevice): GPUShaderModule
@@ -57,6 +59,48 @@ export class WebGPUMaterial
         if(!shader)
             shader = this.fragmentShader.compile(device);
         return shader;
+    }
+
+    public useShader(vertexShader: WebGPUShader, fragmentShader: WebGPUShader): void
+    {
+        this.vertexShader = vertexShader;
+        this.fragmentShader = fragmentShader;
+
+        this.pipeline = null;
+    }
+
+    private setupRenderPipeline(renderer: WebGPURenderer): GPURenderPipeline
+    {
+        let pipeline: GPURenderPipeline;
+        pipeline = renderer.getDevice().createRenderPipeline(
+            {
+                vertex: {
+                    module: this.getVertexShader(renderer.getDevice()),
+                    entryPoint: "main",
+                    buffers: this.getBuffersDescriptor()
+                },
+                layout: "auto",
+                fragment: {
+                    module: this.getFragmentShader(renderer.getDevice()),
+                    entryPoint: "main",
+                    targets: [
+                        {
+                            format: renderer.getGPU().getPreferredCanvasFormat()
+                        }
+                    ]
+                },
+                primitive: {
+                    topology: renderer.getPrimitiveTopology()
+                },
+                depthStencil: {
+                    depthWriteEnabled: true,
+                    depthCompare: 'less',
+                    format: 'depth24plus',
+                }
+            }
+        );
+
+        return pipeline;
     }
 
     private getBuffersDescriptor(): Iterable<GPUVertexBufferLayout>
@@ -88,34 +132,9 @@ export class WebGPUMaterial
 
     public getRenderPipeline(renderer: WebGPURenderer): GPURenderPipeline
     {
-        let pipeline = renderer.getDevice().createRenderPipeline(
-            {
-                vertex: {
-                    module: this.getVertexShader(renderer.getDevice()),
-                    entryPoint: "main",
-                    buffers: this.getBuffersDescriptor()
-                },
-                layout: "auto",
-                fragment: {
-                    module: this.getFragmentShader(renderer.getDevice()),
-                    entryPoint: "main",
-                    targets: [
-                        {
-                            format: renderer.getGPU().getPreferredCanvasFormat()
-                        }
-                    ]
-                },
-                primitive: {
-                    topology: renderer.getPrimitiveTopology()
-                },
-                depthStencil: {
-                    depthWriteEnabled: true,
-                    depthCompare: 'less',
-                    format: 'depth24plus',
-                }
-            }
-        );
-
-        return pipeline;
+        if(this.pipeline)
+            return this.pipeline;
+        this.pipeline = this.setupRenderPipeline(renderer);
+        return this.pipeline;
     }
 }

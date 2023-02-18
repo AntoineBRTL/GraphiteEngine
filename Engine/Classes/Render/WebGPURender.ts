@@ -4,7 +4,9 @@ import { Vector3 } from "../Math/Vector3.js";
 import { RenderingCanvas } from "./RenderingCanvas.js";
 import { Vertex } from "./Vertex.js";
 import { WebGPUCamera } from "./WebGPUCamera.js";
+import { WebGPUMaterial } from "./WebGPUMaterial.js";
 import { WebGPUMesh } from "./WebGPUMesh.js";
+import { WebGPUShader } from "./WebGPUShader.js";
 
 let vertexShader = `
 struct VertexOutput 
@@ -39,17 +41,17 @@ export class WebGPURenderer
     private usePostProcessing: boolean;
 
     private renderingCanvas: RenderingCanvas;
-    private postProcessingRenderingCanvas: RenderingCanvas;
+    private ppRenderingCanvas: RenderingCanvas;
     private gpu: GPU;
 
     private adapter: GPUAdapter | null;
     private device: GPUDevice | null;
-    private context: GPUCanvasContext | null;
-    private postProcessingContext: GPUCanvasContext | null;
-    private postProcessingPipeline: GPURenderPipeline | null;
+    private ctx: GPUCanvasContext | null;
+    private ppctx: GPUCanvasContext | null;
     private depthView: GPUTextureView | null;
 
     private quadMesh: WebGPUMesh;
+    private quadMaterial: WebGPUMaterial;
     private sampler: GPUSampler | null;
 
     private primitiveTopology: GPUPrimitiveTopology;
@@ -62,14 +64,14 @@ export class WebGPURenderer
         this.usePostProcessing              = false;
         this.device                         = null;
         this.adapter                        = null;
-        this.context                        = null;
-        this.postProcessingContext          = null;
-        this.postProcessingPipeline         = null;
+        this.ctx                            = null;
+        this.ppctx                          = null;
         this.depthView                      = null;
         this.sampler                        = null;
         this.renderingCanvas                = new RenderingCanvas();
-        this.postProcessingRenderingCanvas  = new RenderingCanvas();
+        this.ppRenderingCanvas              = new RenderingCanvas();
         this.quadMesh                       = this.setupQuadMesh();
+        this.quadMaterial                   = this.setupQuadMaterial();
         this.gpu                            = this.setupGPU();
 
         this.renderingCanvas.displayCanvas();
@@ -85,9 +87,8 @@ export class WebGPURenderer
     private finalize(device: GPUDevice): void
     {
         this.device                 = device;
-        this.context                = this.setupContext(device, this.renderingCanvas.getCanvas());
-        this.postProcessingContext  = this.setupContext(device, this.postProcessingRenderingCanvas.getCanvas());
-        this.postProcessingPipeline = this.setupPostProcessingPipeline(device);
+        this.ctx                = this.setupContext(device, this.renderingCanvas.getCanvas());
+        this.ppctx  = this.setupContext(device, this.ppRenderingCanvas.getCanvas());
         this.depthView              = this.setupDepthView(device);
         this.quadMesh               = this.setupQuadMesh();
         this.sampler                = this.setupSampler(device);
@@ -123,14 +124,16 @@ export class WebGPURenderer
     /**
      * Renders post-processing effects.
      */
-    private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, depthView: GPUTextureView, pipeline: GPURenderPipeline, frameTexture: GPUTexture, sampler: GPUSampler): void
+    private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, depthView: GPUTextureView, frameTexture: GPUTexture, sampler: GPUSampler): void
     {
+        let pipeline: GPURenderPipeline;
         let commandEncoder: GPUCommandEncoder;
         let view: GPUTextureView;
         let passEncoder: GPURenderPassEncoder;
         let uniformBindingGroup: GPUBindGroup;
         let vertexBuffer: GPUBuffer;
 
+        pipeline                = this.quadMaterial.getRenderPipeline(this);
         commandEncoder          = device.createCommandEncoder();
         view                    = this.getTextureView(context);
         passEncoder             = this.getPassEncoder(commandEncoder, view, depthView);
@@ -159,7 +162,7 @@ export class WebGPURenderer
     public render(actors: Actor[], camera: WebGPUCamera): void
     {
         if(!this.device 
-        || !this.context 
+        || !this.ctx 
         || !this.depthView)
             return;
 
@@ -168,7 +171,7 @@ export class WebGPURenderer
         let passEncoder: GPURenderPassEncoder;
 
         commandEncoder  = this.device.createCommandEncoder();
-        view            = this.getTextureView(this.context);
+        view            = this.getTextureView(this.ctx);
         passEncoder     = this.getPassEncoder(commandEncoder, view, this.depthView);
 
         for(let actor of actors) if(actor != camera)
@@ -179,7 +182,7 @@ export class WebGPURenderer
     }
 
     /**
-     * Setups the quad mesh used for post-processing.
+     * Setups the quad's mesh used for post-processing.
      */
     private setupQuadMesh(): WebGPUMesh
     {
@@ -196,6 +199,18 @@ export class WebGPURenderer
         );
 
         return quadMesh;
+    }
+
+    /**
+     * Setups the quad's material used for post-processing.
+     */
+    private setupQuadMaterial(): WebGPUMaterial
+    {
+        let material: WebGPUMaterial;
+        material = new WebGPUMaterial();
+        material.useShader(new WebGPUShader(vertexShader), new WebGPUShader(fragmentShader));
+
+        return material;
     }
 
     /**
@@ -302,7 +317,7 @@ export class WebGPURenderer
     private resize(device: GPUDevice): void
     {
         this.renderingCanvas.resize();
-        this.postProcessingRenderingCanvas.resize();
+        this.ppRenderingCanvas.resize();
         this.depthView = this.setupDepthView(device);
     }
 
@@ -353,19 +368,13 @@ export class WebGPURenderer
     }
 
     /**
-     * Gets the rendering canvas of a renderer.
+     * Gets the used canvas of a renderer.
      */
-    public getRenderingCanvas(): RenderingCanvas
+    public getUsedCanvas(): RenderingCanvas
     {
-        return this.renderingCanvas;
-    }
-
-    /**
-     * Gets the post-processing rendering canvas of a renderer.
-     */
-    public getPostProcessingRenderingCanvas(): RenderingCanvas
-    {
-        return this.postProcessingRenderingCanvas;
+        if(!this.usePostProcessing)
+            return this.renderingCanvas;
+        return this.ppRenderingCanvas;
     }
 
     /**
@@ -431,73 +440,6 @@ export class WebGPURenderer
     }
 
     /**
-     * Setups a post-processing rendering pipeline.
-     */
-    private setupPostProcessingPipeline(device: GPUDevice): GPURenderPipeline
-    {
-        let pipeline: GPURenderPipeline;
-        pipeline = device.createRenderPipeline(
-            {
-                layout: "auto",
-                vertex: {
-                    entryPoint: "main",
-                    module: device.createShaderModule(
-                        {
-                            code: vertexShader
-                        }
-                    ),
-                    buffers: [
-                        {
-                            attributes: [
-                                {
-                                    shaderLocation: 0,
-                                    format: "float32x3",
-                                    offset: 0
-                                },
-                                {
-                                    shaderLocation: 1,
-                                    format: "float32x2",
-                                    offset: 3 * 4
-                                },
-                                {
-                                    shaderLocation: 2,
-                                    format: "float32x3",
-                                    offset: (3 + 2) * 4
-                                },
-                            ],
-                            stepMode: "vertex",
-                            arrayStride: (3 + 2 + 3) * 4
-                        }
-                    ]
-                }, 
-                fragment: {
-                    entryPoint: "main",
-                    module: device.createShaderModule(
-                        {
-                            code: fragmentShader
-                        }
-                    ),
-                    targets: [
-                        {
-                            format: this.gpu.getPreferredCanvasFormat()
-                        }
-                    ]
-                },
-                primitive: {
-                    topology: this.getPrimitiveTopology()
-                },
-                depthStencil: {
-                    depthWriteEnabled: true,
-                    depthCompare: 'less',
-                    format: 'depth24plus',
-                }
-            }
-        );
-
-        return pipeline;
-    }
-
-    /**
      * Gets a bind-group entry resource from a buffer, a texture or a sampler.
      */
     private getBindGroupEntryResource(entry: GPUBuffer | GPUTexture | GPUSampler): GPUBindingResource
@@ -534,12 +476,12 @@ export class WebGPURenderer
         if(use)
         {   
             this.renderingCanvas.hideCanvas();
-            this.postProcessingRenderingCanvas.displayCanvas();
+            this.ppRenderingCanvas.displayCanvas();
         }
         else
         {
             this.renderingCanvas.displayCanvas();
-            this.postProcessingRenderingCanvas.hideCanvas();
+            this.ppRenderingCanvas.hideCanvas();
         }
     }
 }

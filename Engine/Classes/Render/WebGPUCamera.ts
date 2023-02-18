@@ -52,7 +52,7 @@ export class WebGPUCamera extends Actor
 
     public getProjectionMatrix(): ProjectionMatrix
     {
-        let canvas = this.renderer.getRenderingCanvas().getCanvas();
+        let canvas = this.renderer.getUsedCanvas().getCanvas();
         return new ProjectionMatrix(this.fov * (Math.PI / 180.0), canvas.width / canvas.height, this.near, this.far);
     }
 
