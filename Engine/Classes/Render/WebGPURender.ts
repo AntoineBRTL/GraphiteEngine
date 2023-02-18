@@ -2,7 +2,9 @@ import { Actor } from "../Entity/Actor.js";
 import { Matrix4 } from "../Math/Matrix4.js";
 import { Vector3 } from "../Math/Vector3.js";
 import { RenderingCanvas } from "./RenderingCanvas.js";
+import { Vertex } from "./Vertex.js";
 import { WebGPUCamera } from "./WebGPUCamera.js";
+import { WebGPUMesh } from "./WebGPUMesh.js";
 
 let vertexShader = `
 struct VertexOutput 
@@ -47,7 +49,7 @@ export class WebGPURenderer
     private postProcessingPipeline: GPURenderPipeline | null;
     private depthView: GPUTextureView | null;
 
-    private quadVertexBuffer: GPUBuffer | null;
+    private quadMesh: WebGPUMesh;
     private sampler: GPUSampler | null;
 
     private primitiveTopology: GPUPrimitiveTopology;
@@ -61,10 +63,10 @@ export class WebGPURenderer
         this.postProcessingContext          = null;
         this.postProcessingPipeline         = null;
         this.depthView                      = null;
-        this.quadVertexBuffer               = null;
         this.sampler                        = null;
         this.renderingCanvas                = new RenderingCanvas();
         this.postProcessingRenderingCanvas  = new RenderingCanvas();
+        this.quadMesh                       = this.setupQuadMesh();
         this.gpu                            = this.setupGPU();
 
         this.renderingCanvas.displayCanvas();
@@ -72,6 +74,107 @@ export class WebGPURenderer
         this.setup();
         
         this.primitiveTopology = "triangle-list";
+    }
+
+    private finalize(device: GPUDevice): void
+    {
+        this.device                 = device;
+        this.context                = this.setupContext(device, this.renderingCanvas.getCanvas());
+        this.postProcessingContext  = this.setupContext(device, this.postProcessingRenderingCanvas.getCanvas());
+        this.postProcessingPipeline = this.setupPostProcessingPipeline(device);
+        this.depthView              = this.setupDepthView(device);
+        this.quadMesh               = this.setupQuadMesh();
+        this.sampler                = this.setupSampler(device);
+
+        this.resize(device);
+        window.addEventListener("resize", this.resize.bind(this, device));
+    }
+
+    private renderActor(actor: Actor, camera: WebGPUCamera, passEncoder: GPURenderPassEncoder, device: GPUDevice): void
+    {
+        let pipeline: GPURenderPipeline;
+        let vertexBuffer: GPUBuffer;
+        let mActorBuffer: GPUBuffer;
+        let mViewBuffer: GPUBuffer;
+        let mProjBuffer: GPUBuffer;
+        let mActorRotBuffer: GPUBuffer;
+        let uniformBuffer: GPUBindGroup;
+
+        pipeline        = this.getActorPipeline(actor);
+        vertexBuffer    = actor.getMesh().getVertexBuffer(device);
+        mActorBuffer    = this.toUniformGPUBuffer(actor.getTransform().getTransformationMatrix(), device);
+        mViewBuffer     = this.toUniformGPUBuffer(camera.getTransform().getViewTransformationMatrix(), device);
+        mProjBuffer     = camera.getProjectionBuffer(device);
+        mActorRotBuffer = this.toUniformGPUBuffer(actor.getTransform().getRotationMatrix(), device);
+        uniformBuffer   = this.setupUniformBindGroup(mActorBuffer, mViewBuffer, mProjBuffer, mActorRotBuffer, device, pipeline);
+
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setVertexBuffer(0, vertexBuffer);
+        passEncoder.setBindGroup(0, uniformBuffer);
+        
+        passEncoder.draw(actor.getMesh().getVertices().length / (3 + 2 + 3)); /** POSITION UV NORMAL */
+    }
+
+    private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, depthView: GPUTextureView, quadMesh: WebGPUMesh, pipeline: GPURenderPipeline, frameTexture: GPUTexture, sampler: GPUSampler): void
+    {
+        let commandEncoder: GPUCommandEncoder;
+        let view: GPUTextureView;
+        let passEncoder: GPURenderPassEncoder;
+        let uniformBuffer: GPUBindGroup;
+        let vertexBuffer: GPUBuffer;
+
+        commandEncoder  = device.createCommandEncoder();
+        view            = this.getTextureView(context);
+        passEncoder     = this.getPassEncoder(commandEncoder, view, depthView);
+        uniformBuffer   = this.setupPostProcessingUniformBuffer(device, frameTexture, sampler, pipeline);
+        vertexBuffer    = quadMesh.getVertexBuffer(device);
+
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setVertexBuffer(0, vertexBuffer);
+        passEncoder.setBindGroup(0, uniformBuffer);
+
+        passEncoder.draw(quadMesh.getVertices().length / (3 + 2 + 3));
+        passEncoder.end();
+        device.queue.submit([commandEncoder.finish()]);
+    }
+
+    public render(actors: Actor[], camera: WebGPUCamera): void
+    {
+        if(!this.device 
+        || !this.context 
+        || !this.depthView)
+            return;
+
+        let commandEncoder: GPUCommandEncoder;
+        let view: GPUTextureView;
+        let passEncoder: GPURenderPassEncoder;
+
+        commandEncoder  = this.device.createCommandEncoder();
+        view            = this.getTextureView(this.context);
+        passEncoder     = this.getPassEncoder(commandEncoder, view, this.depthView);
+
+        for(let actor of actors) if(actor != camera)
+            this.renderActor(actor, camera, passEncoder, this.device);
+
+        passEncoder.end();
+        this.device.queue.submit([commandEncoder.finish()]);
+    }
+
+    private setupQuadMesh(): WebGPUMesh
+    {
+        let quadMesh: WebGPUMesh;
+
+        quadMesh = new WebGPUMesh();
+        quadMesh.addVertex(
+            new Vertex(new Vector3(-1.0,  1.0, 0.0)),
+            new Vertex(new Vector3(-1.0, -1.0, 0.0)),
+            new Vertex(new Vector3( 1.0, -1.0, 0.0)),
+            new Vertex(new Vector3(-1.0,  1.0, 0.0)),
+            new Vertex(new Vector3( 1.0,  1.0, 0.0)),
+            new Vertex(new Vector3( 1.0, -1.0, 0.0)),
+        );
+
+        return quadMesh;
     }
 
     private setup(): void
@@ -82,46 +185,6 @@ export class WebGPURenderer
             this.adapter = adapter;
             this.setupDevice(this.adapter).then(this.finalize.bind(this));
         }.bind(this));
-    }
-
-    private finalize(device: GPUDevice): void
-    {
-        this.device                 = device;
-        this.context                = this.setupContext(device, this.renderingCanvas.getCanvas());
-        this.postProcessingContext  = this.setupContext(device, this.postProcessingRenderingCanvas.getCanvas());
-        this.postProcessingPipeline = this.setupPostProcessingPipeline(device);
-        this.depthView              = this.setupDepthView(device);
-        this.quadVertexBuffer       = this.setupQuadBuffer(device);
-        this.sampler                = this.setupSampler(device);
-
-        this.resize(device);
-        window.addEventListener("resize", this.resize.bind(this, device));
-    }
-
-    public getPrimitiveTopology(): GPUPrimitiveTopology
-    {
-        return this.primitiveTopology;
-    }
-
-    public getDevice(): GPUDevice
-    {
-        if(!this.device) throw new Error("Error: Device not found");
-        return this.device;
-    }
-
-    public getGPU(): GPU
-    {
-        return this.gpu;
-    }
-
-    public getRenderingCanvas(): RenderingCanvas
-    {
-        return this.renderingCanvas;
-    }
-
-    public getPostProcessingRenderingCanvas(): RenderingCanvas
-    {
-        return this.postProcessingRenderingCanvas;
     }
 
     private setupSampler(device: GPUDevice): GPUSampler
@@ -178,6 +241,16 @@ export class WebGPURenderer
         return device;
     }
 
+    private setupContext(device: GPUDevice, canvas: HTMLCanvasElement): GPUCanvasContext
+    {
+        let context: GPUCanvasContext | null;
+        context = canvas.getContext("webgpu");
+        if(!context) throw new Error("Can't get context");
+        context.configure(this.getContextConfig(device));
+
+        return context;
+    }
+
     private resize(device: GPUDevice): void
     {
         this.renderingCanvas.resize();
@@ -195,79 +268,35 @@ export class WebGPURenderer
         };
     }
 
-    private setupContext(device: GPUDevice, canvas: HTMLCanvasElement): GPUCanvasContext
-    {
-        let context: GPUCanvasContext | null;
-        context = canvas.getContext("webgpu");
-        if(!context) throw new Error("Can't get context");
-        context.configure(this.getContextConfig(device));
-
-        return context;
-    }
-
     private getActorPipeline(actor: Actor): GPURenderPipeline
     {
         return actor.getMaterial().getRenderPipeline(this);
     }
 
-    private renderActor(actor: Actor, camera: WebGPUCamera, passEncoder: GPURenderPassEncoder, device: GPUDevice): void
+    public getPrimitiveTopology(): GPUPrimitiveTopology
     {
-        let pipeline: GPURenderPipeline;
-        let vertexBuffer: GPUBuffer;
-        let mActorBuffer: GPUBuffer;
-        let mViewBuffer: GPUBuffer;
-        let mProjBuffer: GPUBuffer;
-        let mActorRotBuffer: GPUBuffer;
-        let uniformBuffer: GPUBindGroup;
-
-        pipeline        = this.getActorPipeline(actor);
-        vertexBuffer    = actor.getMesh().getVertexBuffer(device);
-        mActorBuffer    = this.toUniformGPUBuffer(actor.getTransform().getTransformationMatrix(), device);
-        mViewBuffer     = this.toUniformGPUBuffer(camera.getTransform().getViewTransformationMatrix(), device);
-        mProjBuffer     = camera.getProjectionBuffer(device);
-        mActorRotBuffer = this.toUniformGPUBuffer(actor.getTransform().getRotationMatrix(), device);
-        uniformBuffer   = this.setupUniformBindGroup(mActorBuffer, mViewBuffer, mProjBuffer, mActorRotBuffer, device, pipeline);
-
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setVertexBuffer(0, vertexBuffer);
-        passEncoder.setBindGroup(0, uniformBuffer);
-        
-        passEncoder.draw(actor.getMesh().getVertices().length / (3 + 2 + 3)); /** POSITION UV NORMAL */
+        return this.primitiveTopology;
     }
 
-    public render(actors: Actor[], camera: WebGPUCamera): void
+    public getDevice(): GPUDevice
     {
-        if(!this.device 
-        || !this.context 
-        || !this.depthView)
-            return;
+        if(!this.device) throw new Error("Error: Device not found");
+        return this.device;
+    }
 
-        let commandEncoder: GPUCommandEncoder;
-        let view: GPUTextureView;
-        let passEncoder: GPURenderPassEncoder;
+    public getGPU(): GPU
+    {
+        return this.gpu;
+    }
 
-        commandEncoder  = this.device.createCommandEncoder();
-        view            = this.getTextureView(this.context);
-        passEncoder     = this.getPassEncoder(commandEncoder, view, this.depthView);
+    public getRenderingCanvas(): RenderingCanvas
+    {
+        return this.renderingCanvas;
+    }
 
-        for(let actor of actors) if(actor != camera)
-            this.renderActor(actor, camera, passEncoder, this.device);
-
-        passEncoder.end();
-        this.device.queue.submit([commandEncoder.finish()]);
-
-        /** IMPORTANT NUMBER OF LOST FRAMES */
-        // if(this.usePostProcessing && this.postProcessingContext && this.quadVertexBuffer && this.postProcessingPipeline && this.sampler))
-        // {
-        //     let frameTexture = this.getTextureFromCanvas(this.device, this.renderingCanvas.getCanvas(), commandEncoder, this.context.getCurrentTexture());
-        //     this.device.queue.submit([commandEncoder.finish()]);
-
-        //     this.renderPostProcessing(this.device, this.postProcessingContext, this.quadVertexBuffer, this.postProcessingPipeline, frameTexture, this.sampler);
-        // }
-        // else
-        // {
-            
-        // }
+    public getPostProcessingRenderingCanvas(): RenderingCanvas
+    {
+        return this.postProcessingRenderingCanvas;
     }
 
     private toUniformGPUBuffer(value: Float32Array, device: GPUDevice): GPUBuffer
@@ -279,75 +308,16 @@ export class WebGPURenderer
         return buffer;
     }
 
-    private setupQuadBuffer(device: GPUDevice): GPUBuffer
-    {
-        let quad: Float32Array;
-        quad = new Float32Array([
-            -1.0, 1.0, 0.0,
-            -1.0 , -1.0, 0.0,
-            1.0, -1.0, 0.0,
-            -1.0, 1.0, 0.0,
-            1.0, 1.0, 0.0, 
-            1.0, -1.0, 0.0
-        ]);
-
-        let buffer = device.createBuffer(
-            {
-                size: quad.byteLength,
-                usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
-            }
-        );
-        device.queue.writeBuffer(buffer, 0, quad);
-        return buffer;
-    }
-
     private getTextureFromCanvas(device: GPUDevice, canvas: HTMLCanvasElement, commandEncoder:GPUCommandEncoder, swapChainTexture: GPUTexture): GPUTexture
     {
-        let texture = device.createTexture(
-            {
-                size: {width: canvas.width, height: canvas.height},
-                format: this.gpu.getPreferredCanvasFormat(),
-                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST
-            }
-        );
-        commandEncoder.copyTextureToTexture(
-            {
-              texture: swapChainTexture,
-            },
-            {
-              texture: texture,
-            },
-            [canvas.width, canvas.height]
-        );
-        // device.queue.copyExternalImageToTexture({source: canvas}, {texture: texture}, {width: canvas.width, height: canvas.height});
+        let texture: GPUTexture;
+
+        texture = device.createTexture({size: {width: canvas.width, height: canvas.height}, 
+            format: this.gpu.getPreferredCanvasFormat(), 
+            usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST});
+        commandEncoder.copyTextureToTexture({texture: swapChainTexture}, {texture: texture}, [canvas.width, canvas.height]);
+        
         return texture;
-    }
-
-    private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, quadBuffer: GPUBuffer, pipeline: GPURenderPipeline, frameTexture: GPUTexture, sampler: GPUSampler): void
-    {
-        let commandEncoder = device.createCommandEncoder();
-        let view = context.getCurrentTexture().createView();
-        let renderPassDescriptor: GPURenderPassDescriptor = {
-            colorAttachments: [
-                {
-                    view: view,
-                    clearValue: {r: 0.09, g: 0.09, b: 0.09, a: 1.0},
-                    loadOp: "clear",
-                    storeOp: "store"
-                }
-            ]
-        }
-
-        let passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setVertexBuffer(0, quadBuffer);
-
-        let uniformBuffer = this.setupPostProcessingUniformBuffer(device, frameTexture, sampler, pipeline);
-        passEncoder.setBindGroup(0, uniformBuffer);
-
-        passEncoder.draw(6);
-        passEncoder.end();
-        device.queue.submit([commandEncoder.finish()]);
     }
 
     private getTextureView(context: GPUCanvasContext): GPUTextureView
@@ -379,21 +349,6 @@ export class WebGPURenderer
         return commandEncoder.beginRenderPass(renderPassDescriptor);
     }
 
-    public setUsePostProcessing(use: boolean): void
-    {
-        this.usePostProcessing = use;
-        if(use)
-        {   
-            this.renderingCanvas.hideCanvas();
-            this.postProcessingRenderingCanvas.displayCanvas();
-        }
-        else
-        {
-            this.renderingCanvas.displayCanvas();
-            this.postProcessingRenderingCanvas.hideCanvas();
-        }
-    }
-
     private setupPostProcessingPipeline(device: GPUDevice): GPURenderPipeline
     {
         let pipeline: GPURenderPipeline;
@@ -414,10 +369,20 @@ export class WebGPURenderer
                                     shaderLocation: 0,
                                     format: "float32x3",
                                     offset: 0
-                                }
-                            ], 
-                            arrayStride: 12,
-                            stepMode: "vertex"
+                                },
+                                {
+                                    shaderLocation: 1,
+                                    format: "float32x2",
+                                    offset: 3 * 4
+                                },
+                                {
+                                    shaderLocation: 2,
+                                    format: "float32x3",
+                                    offset: (3 + 2) * 4
+                                },
+                            ],
+                            stepMode: "vertex",
+                            arrayStride: (3 + 2 + 3) * 4
                         }
                     ]
                 }, 
@@ -433,6 +398,14 @@ export class WebGPURenderer
                             format: this.gpu.getPreferredCanvasFormat()
                         }
                     ]
+                },
+                primitive: {
+                    topology: this.getPrimitiveTopology()
+                },
+                depthStencil: {
+                    depthWriteEnabled: true,
+                    depthCompare: 'less',
+                    format: 'depth24plus',
                 }
             }
         );
@@ -496,5 +469,20 @@ export class WebGPURenderer
                 ]
             }
         );
+    }
+
+    public setUsePostProcessing(use: boolean): void
+    {
+        this.usePostProcessing = use;
+        if(use)
+        {   
+            this.renderingCanvas.hideCanvas();
+            this.postProcessingRenderingCanvas.displayCanvas();
+        }
+        else
+        {
+            this.renderingCanvas.displayCanvas();
+            this.postProcessingRenderingCanvas.hideCanvas();
+        }
     }
 }
