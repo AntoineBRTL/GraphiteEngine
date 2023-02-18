@@ -115,7 +115,7 @@ export class WebGPURenderer
         passEncoder.draw(actor.getMesh().getVertices().length / (3 + 2 + 3)); /** POSITION UV NORMAL */
     }
 
-    private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, depthView: GPUTextureView, quadMesh: WebGPUMesh, pipeline: GPURenderPipeline, frameTexture: GPUTexture, sampler: GPUSampler): void
+    private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, depthView: GPUTextureView, pipeline: GPURenderPipeline, frameTexture: GPUTexture, sampler: GPUSampler): void
     {
         let commandEncoder: GPUCommandEncoder;
         let view: GPUTextureView;
@@ -127,13 +127,13 @@ export class WebGPURenderer
         view            = this.getTextureView(context);
         passEncoder     = this.getPassEncoder(commandEncoder, view, depthView);
         uniformBuffer   = this.setupPostProcessingUniformBuffer(device, frameTexture, sampler, pipeline);
-        vertexBuffer    = quadMesh.getVertexBuffer(device);
+        vertexBuffer    = this.quadMesh.getVertexBuffer(device);
 
         passEncoder.setPipeline(pipeline);
         passEncoder.setVertexBuffer(0, vertexBuffer);
         passEncoder.setBindGroup(0, uniformBuffer);
 
-        passEncoder.draw(quadMesh.getVertices().length / (3 + 2 + 3));
+        passEncoder.draw(this.quadMesh.getVertices().length / (3 + 2 + 3));
         passEncoder.end();
         device.queue.submit([commandEncoder.finish()]);
     }
