@@ -35,7 +35,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32>
 export class WebGPURenderer
 {
     private renderingCanvas: RenderingCanvas;
-    private postProcessingCanvas: RenderingCanvas;
+    private postProcessingRenderingCanvas: RenderingCanvas;
     private gpu: GPU;
 
     private adapter: GPUAdapter | null;
@@ -53,8 +53,8 @@ export class WebGPURenderer
     {
         this.renderingCanvas = new RenderingCanvas();
         // this.renderingCanvas.displayCanvas();
-        this.postProcessingCanvas = new RenderingCanvas();
-        this.postProcessingCanvas.displayCanvas();
+        this.postProcessingRenderingCanvas = new RenderingCanvas();
+        this.postProcessingRenderingCanvas.displayCanvas();
         this.gpu = this.setupGPU();
 
         this.device = null;
@@ -185,7 +185,7 @@ export class WebGPURenderer
     private resize(device: GPUDevice): void
     {
         this.renderingCanvas.resize();
-        this.postProcessingCanvas.resize();
+        this.postProcessingRenderingCanvas.resize();
         this.depthView = this.setupDepthView(device);
     }
 
@@ -211,7 +211,7 @@ export class WebGPURenderer
 
     private setupPostProcessingContext(): GPUCanvasContext
     {
-        let context = this.postProcessingCanvas.getCanvas().getContext("webgpu");
+        let context = this.postProcessingRenderingCanvas.getCanvas().getContext("webgpu");
         if(!context || !this.device)
         {
             throw new Error("Can't get context");
@@ -471,6 +471,6 @@ export class WebGPURenderer
 
     public getPostProcessingRenderingCanvas(): RenderingCanvas
     {
-        return this.postProcessingCanvas;
+        return this.postProcessingRenderingCanvas;
     }
 }
