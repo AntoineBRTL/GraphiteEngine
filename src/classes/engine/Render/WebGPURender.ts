@@ -34,6 +34,8 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32>
 
 export class WebGPURenderer
 {
+    private usePostProcessing: boolean;
+
     private renderingCanvas: RenderingCanvas;
     private postProcessingRenderingCanvas: RenderingCanvas;
     private gpu: GPU;
@@ -46,15 +48,18 @@ export class WebGPURenderer
     private depthView: GPUTextureView | null;
 
     private quadVertexBuffer: GPUBuffer | null;
+    private sampler: GPUSampler | null;
 
     private primitiveTopology: GPUPrimitiveTopology;
 
     public constructor()
     {
+        this.usePostProcessing = false;
+
         this.renderingCanvas = new RenderingCanvas();
-        // this.renderingCanvas.displayCanvas();
+        this.renderingCanvas.displayCanvas();
         this.postProcessingRenderingCanvas = new RenderingCanvas();
-        this.postProcessingRenderingCanvas.displayCanvas();
+        // this.postProcessingRenderingCanvas.displayCanvas();
         this.gpu = this.setupGPU();
 
         this.device = null;
@@ -65,6 +70,7 @@ export class WebGPURenderer
         this.depthView = null;
 
         this.quadVertexBuffer = null;
+        this.sampler = null;
 
         this.setup();
         
@@ -85,6 +91,7 @@ export class WebGPURenderer
                 this.postProcessingPipeline = this.setupPostProcessingPipeline(device);
                 this.depthView = this.setupDepthView(device);
                 this.quadVertexBuffer = this.setupQuadBuffer(device);
+                this.sampler = this.setupSampler(device);
 
                 this.resize(device);
                 window.addEventListener("resize", this.resize.bind(this, device));
@@ -135,6 +142,11 @@ export class WebGPURenderer
         );
 
         return pipeline;
+    }
+
+    private setupSampler(device: GPUDevice): GPUSampler
+    {
+        return device.createSampler({magFilter: 'linear', minFilter: 'linear'});
     }
 
     private setupDepthView(device: GPUDevice): GPUTextureView
@@ -381,9 +393,8 @@ export class WebGPURenderer
         return texture;
     }
 
-    private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, quadBuffer: GPUBuffer, pipeline: GPURenderPipeline, frameTexture: GPUTexture): void
+    private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, quadBuffer: GPUBuffer, pipeline: GPURenderPipeline, frameTexture: GPUTexture, sampler: GPUSampler): void
     {
-        let sampler = device.createSampler({magFilter: 'linear', minFilter: 'linear'});
         let commandEncoder = device.createCommandEncoder();
         let view = context.getCurrentTexture().createView();
         let renderPassDescriptor: GPURenderPassDescriptor = {
@@ -411,7 +422,7 @@ export class WebGPURenderer
 
     public render(actors: Actor[], camera: WebGPUCamera): void
     {
-        if(!this.device || !this.context || !this.depthView || !this.postProcessingContext || !this.quadVertexBuffer || !this.postProcessingPipeline)
+        if(!this.device || !this.context || !this.depthView || !this.postProcessingContext || !this.quadVertexBuffer || !this.postProcessingPipeline || !this.sampler)
             return;
 
         let commandEncoder = this.device.createCommandEncoder();
@@ -442,9 +453,18 @@ export class WebGPURenderer
         }
 
         passEncoder.end();
-        let frameTexture = this.getTextureFromCanvas(this.device, this.renderingCanvas.getCanvas(), commandEncoder, this.context.getCurrentTexture());
-        this.device.queue.submit([commandEncoder.finish()]);
-        this.renderPostProcessing(this.device, this.postProcessingContext, this.quadVertexBuffer, this.postProcessingPipeline, frameTexture);
+
+        if(this.usePostProcessing)
+        {
+            let frameTexture = this.getTextureFromCanvas(this.device, this.renderingCanvas.getCanvas(), commandEncoder, this.context.getCurrentTexture());
+            this.device.queue.submit([commandEncoder.finish()]);
+
+            this.renderPostProcessing(this.device, this.postProcessingContext, this.quadVertexBuffer, this.postProcessingPipeline, frameTexture, this.sampler);
+        }
+        else
+        {
+            this.device.queue.submit([commandEncoder.finish()]);
+        }
     }
 
     public getPrimitiveTopology(): GPUPrimitiveTopology
@@ -472,5 +492,20 @@ export class WebGPURenderer
     public getPostProcessingRenderingCanvas(): RenderingCanvas
     {
         return this.postProcessingRenderingCanvas;
+    }
+
+    public setUsePostProcessing(use: boolean): void
+    {
+        this.usePostProcessing = use;
+        if(use)
+        {   
+            this.renderingCanvas.hideCanvas();
+            this.postProcessingRenderingCanvas.displayCanvas();
+        }
+        else
+        {
+            this.renderingCanvas.displayCanvas();
+            this.postProcessingRenderingCanvas.hideCanvas();
+        }
     }
 }

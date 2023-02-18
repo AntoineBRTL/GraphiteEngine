@@ -14,6 +14,11 @@ export class RenderingCanvas
         document.body.style.padding = '0px';
     }
 
+    public hideCanvas(): void
+    {
+        document.body.removeChild(this.canvas);
+    }
+
     public resize():void
     {
         this.canvas.width = window.innerWidth;
