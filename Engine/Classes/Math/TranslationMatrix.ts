@@ -6,6 +6,7 @@ export class TranslationMatrix extends Matrix4
     public constructor(location: Vector3)
     {
         super();
+        this.identity();
 
         this[12] = location.x;
         this[13] = location.y;

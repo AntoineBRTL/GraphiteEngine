@@ -20,7 +20,7 @@ export class Actor
         this.material = new WebGPUMaterial();
     }
     
-    public update(): void {};
+    public update(deltaTime: number): void {};
 
     public static getActors(): Actor[]
     {

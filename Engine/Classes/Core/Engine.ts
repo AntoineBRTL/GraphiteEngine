@@ -12,12 +12,12 @@ export class Engine
         this.thread.launch();
     }
 
-    private update(): void
+    private update(deltaTime: number): void
     {
         let actors: Array<Actor>;
         actors = Actor.getActors();
 
-        for(let actor of actors) actor.update();
+        for(let actor of actors) actor.update(deltaTime);
     }
 
     public getThread(): Thread

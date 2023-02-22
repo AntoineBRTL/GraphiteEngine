@@ -17,9 +17,7 @@ export * from "./Classes/Entity/FrameRateDebuger.js";
 /** MATH */
 export * from "./Classes/Math/Matrix4.js"
 export * from "./Classes/Math/ProjectionMatrix.js";
-export * from "./Classes/Math/RotationxMatrix.js";
-export * from "./Classes/Math/RotationyMatrix.js";
-export * from "./Classes/Math/RotationzMatrix.js";
+export * from "./Classes/Math/RotationMatrix.js";
 export * from "./Classes/Math/ScalingMatrix.js";
 export * from "./Classes/Math/Transform.js";
 export * from "./Classes/Math/TranslationMatrix.js";

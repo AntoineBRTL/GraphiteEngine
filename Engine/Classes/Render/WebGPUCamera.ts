@@ -40,7 +40,7 @@ export class WebGPUCamera extends Actor
         return buffer;
     }
 
-    public override update(): void 
+    public override update(deltaTime: number): void 
     {
         this.renderer.render(Actor.getActors(), this);
     }

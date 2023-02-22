@@ -26,26 +26,26 @@ export class ControlCamera extends WebGPUCamera
         }.bind(this));
     }
 
-    public override update(): void 
+    public override update(deltaTime: number): void 
     {
-        super.update();
+        super.update(deltaTime);
         
         if(input.getKeyPress("z"))
-            this.transform.setLocation(this.transform.getLocation().add(this.transform.getForward().scale(this.speed * renderThread.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(this.transform.getForward().scale(this.speed * deltaTime)));
 
         if(input.getKeyPress("s"))
-            this.transform.setLocation(this.transform.getLocation().add(this.transform.getBackward().scale(this.speed * renderThread.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(this.transform.getBackward().scale(this.speed * deltaTime)));
 
         if(input.getKeyPress("q"))
-            this.transform.setLocation(this.transform.getLocation().add(this.transform.getLeft().scale(this.speed * renderThread.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(this.transform.getLeft().scale(this.speed * deltaTime)));
 
         if(input.getKeyPress("d"))
-            this.transform.setLocation(this.transform.getLocation().add(this.transform.getRight().scale(this.speed * renderThread.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(this.transform.getRight().scale(this.speed * deltaTime)));
 
         if(input.getKeyPress(" "))
-            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, this.flySpeed, 0.0).scale(renderThread.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, this.flySpeed, 0.0).scale(deltaTime)));
 
         if(input.getKeyPress("Shift"))
-            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, -this.flySpeed, 0.0).scale(renderThread.getDeltaTime())));
+            this.transform.setLocation(this.transform.getLocation().add(new Vector3(0.0, -this.flySpeed, 0.0).scale(deltaTime)));
     }
 }

@@ -23,8 +23,8 @@ export class FrameRateDebuger extends Actor
         document.body.appendChild(this.div);
     }
 
-    public override update(): void 
+    public override update(deltaTime: number): void 
     {
-        this.div.innerHTML = (1.0 / this.thread.getDeltaTime()).toFixed(0).toString();
+        this.div.innerText = (1.0 / this.thread.getDeltaTime()).toFixed(0).toString();
     }
 }

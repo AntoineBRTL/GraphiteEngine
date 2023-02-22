@@ -18,7 +18,7 @@ export class Thread
         if(!this.isRunning)
             return;
 
-        this.onTick();
+        this.onTick(this.deltaTime);
 
         this.deltaTime = (performance.now() - this.lastTime) / 1e3;
         this.lastTime = performance.now();
@@ -26,7 +26,7 @@ export class Thread
         window.requestAnimationFrame(this.run.bind(this));
     }
 
-    public onTick(): void {};
+    public onTick(deltaTime: number): void {};
 
     public launch(): void
     {

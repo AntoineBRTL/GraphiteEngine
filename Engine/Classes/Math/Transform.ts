@@ -1,7 +1,5 @@
 import { Matrix4 } from "./Matrix4.js";
-import { RotationxMatrix } from "./RotationxMatrix.js";
-import { RotationyMatrix } from "./RotationyMatrix.js";
-import { RotationzMatrix } from "./RotationzMatrix.js";
+import { RotationMatrix } from "./RotationMatrix.js";
 import { ScalingMatrix } from "./ScalingMatrix.js";
 import { TranslationMatrix } from "./TranslationMatrix.js";
 import { Vector3 } from "./Vector3.js";
@@ -29,7 +27,7 @@ export class Transform
 
     public getViewTransformationMatrix(): Matrix4
     {
-        let rm = this.getViewRotationMatrix();
+        let rm = new RotationMatrix(this.rotation);
         let tm = new TranslationMatrix(this.location.scale(-1));
         return tm.product(rm);
     }
@@ -41,7 +39,7 @@ export class Transform
         let sm: Matrix4;
         let fm: Matrix4;
 
-        rm = this.getLocalRotationMatrix();
+        rm = new RotationMatrix(this.rotation);
         tm = new TranslationMatrix(this.location);
         sm = new ScalingMatrix(this.scale);
 
@@ -65,44 +63,11 @@ export class Transform
     public getRotationMatrix(): Matrix4
     {
         let rm: Matrix4;
-
-        rm = this.getLocalRotationMatrix();
+        rm = new RotationMatrix(this.rotation);
 
         if(this.parent)
-        {
             return rm.product(this.parent.getRotationMatrix()); 
-        }
         
-        return rm;
-    }
-
-    private getLocalRotationMatrix(): Matrix4
-    {
-        let rx: Matrix4;
-        let ry: Matrix4;
-        let rz: Matrix4;
-        let rm: Matrix4;
-
-        rx = new RotationxMatrix((Math.PI / 180) * this.rotation.x);
-        ry = new RotationyMatrix((Math.PI / 180) * this.rotation.y);
-        rz = new RotationzMatrix((Math.PI / 180) * this.rotation.z);
-        rm = rz.product(ry).product(rx);
-
-        return rm;
-    }
-
-    private getViewRotationMatrix(): Matrix4
-    {
-        let rx: Matrix4;
-        let ry: Matrix4;
-        let rz: Matrix4;
-        let rm: Matrix4;
-
-        rx = new RotationxMatrix((Math.PI / 180) * this.rotation.x);
-        ry = new RotationyMatrix((Math.PI / 180) * this.rotation.y);
-        rz = new RotationzMatrix((Math.PI / 180) * this.rotation.z);
-        rm = rz.product(ry).product(rx);
-
         return rm;
     }
 

@@ -36,7 +36,10 @@ export class Matrix4 extends Float32Array
     public constructor()
     {
         super(16);
+    }
 
+    protected identity(): void
+    {
         this[0] = 1.0;
         this[1] = 0.0;
         this[2] = 0.0;
@@ -58,6 +61,7 @@ export class Matrix4 extends Float32Array
         this[15] = 1.0;
     }
 
+    /** TODO: OPTIMISE PRODUCT */
     public product(matrix: Matrix4): Matrix4
     {
         let productMatrix = new Matrix4();
