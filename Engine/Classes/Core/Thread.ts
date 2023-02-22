@@ -1,48 +1,29 @@
 export class Thread
 {
     private isRunning: boolean;
-    private intervalId: number;
-    private targetFrameRate: number;
 
     private deltaTime: number;
     private lastTime: number;
 
-    private finishedFrame: boolean;
-
-    public constructor(targetFrameRate: number)
+    public constructor()
     {
         this.isRunning = false;
-        this.intervalId = -1;
-        this.targetFrameRate = targetFrameRate;
 
         this.deltaTime = 0;
         this.lastTime = 0;
-
-        this.finishedFrame = true;
     }
 
     private run(): void
     {
-        this.intervalId = window.setInterval(function(this:Thread)
-        {
-            if(!this.isRunning)
-            {
-                window.clearInterval(this.intervalId);
-                return;
-            }
+        if(!this.isRunning)
+            return;
 
-            if(!this.finishedFrame)
-                return;
+        this.onTick();
 
-            this.finishedFrame = false;
+        this.deltaTime = (performance.now() - this.lastTime) / 1e3;
+        this.lastTime = performance.now();
 
-            this.onTick();
-
-            this.deltaTime = (performance.now() - this.lastTime) / 1e3;
-            this.lastTime = performance.now();
-
-            this.finishedFrame = true;
-        }.bind(this), 1000 / this.targetFrameRate);
+        window.requestAnimationFrame(this.run.bind(this));
     }
 
     public onTick(): void {};

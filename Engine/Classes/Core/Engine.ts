@@ -8,18 +8,16 @@ export class Engine
     public constructor(thread: Thread)
     {
         this.thread = thread;
-        this.thread.launch();
         this.thread.onTick = this.update.bind(this);
+        this.thread.launch();
     }
 
     private update(): void
     {
-        let actors = Actor.getActors();
+        let actors: Array<Actor>;
+        actors = Actor.getActors();
 
-        for(let actor of actors)
-        {
-            actor.update();
-        }
+        for(let actor of actors) actor.update();
     }
 
     public getThread(): Thread

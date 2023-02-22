@@ -32,8 +32,8 @@ export class Input
         }.bind(this));
 
         this.thread = thread;
-        this.thread.launch();
         this.thread.onTick = this.inputTick.bind(this);
+        this.thread.launch();
 
         this.mousePosition = new Vector3();
 
