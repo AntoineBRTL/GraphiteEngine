@@ -7,18 +7,29 @@ export class RotationMatrix extends Matrix4
     {
         super();
 
-        let phi = axis.x * (Math.PI / 180);
-        let theta = axis.y * (Math.PI / 180);
-        let psi = axis.z * (Math.PI / 180);
+        let radScalar: number;
+        let phi: number;
+        let theta: number;
+        let psi: number;
+        let cosPhi: number;
+        let sinPhi: number;
+        let cosTheta: number;
+        let sinTheta: number;
+        let cosPsi: number;
+        let sinPsi: number;
 
-        let cosPhi = Math.cos(phi);
-        let sinPhi = Math.sin(phi);
+        radScalar = Math.PI / 180.0;
+        phi = axis.x * radScalar;
+        theta = axis.y * radScalar;
+        psi = axis.z * radScalar;
 
-        let cosTheta = Math.cos(theta);
-        let sinTheta = Math.sin(theta);
-
-        let cosPsi = Math.cos(psi);
-        let sinPsi = Math.sin(psi);
+        // TODO: OPTIMIZE SIN() COMPUTATION USING COS()
+        cosPhi = Math.cos(phi);
+        sinPhi = Math.sin(phi);
+        cosTheta = Math.cos(theta);
+        sinTheta = Math.sin(theta);
+        cosPsi = Math.cos(psi);
+        sinPsi = Math.sin(psi);
 
         this[0] = cosTheta * cosPsi;
         this[1] = -cosPhi * sinPsi + sinPhi * sinTheta * cosPsi;

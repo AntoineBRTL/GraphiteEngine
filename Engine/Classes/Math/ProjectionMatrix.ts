@@ -6,7 +6,9 @@ export class ProjectionMatrix extends Matrix4
     {
         super();
 
-        let f = 1.0 / Math.tan(fov / 2);
+        let f: number;
+        f = 1.0 / Math.tan(fov / 2);
+
         this[0] = f / aspect;
         this[1] = 0;
         this[2] = 0;
@@ -24,7 +26,8 @@ export class ProjectionMatrix extends Matrix4
         
         if (far != null && far !== Infinity) 
         {
-            let nf = 1 / (near - far);
+            let nf: number;
+            nf = 1 / (near - far);
 
             this[10] = far * nf;
             this[14] = far * near * nf;
