@@ -19,9 +19,9 @@ export class RotationMatrix extends Matrix4
         let sinPsi: number;
 
         radScalar   = Math.PI / 180.0;
-        phi         = axis.x * radScalar;
-        theta       = axis.y * radScalar;
-        psi         = axis.z * radScalar;
+        phi         = axis[0] * radScalar;
+        theta       = axis[1] * radScalar;
+        psi         = axis[2] * radScalar;
 
         // TODO: OPTIMIZE SIN() COMPUTATION USING COS()
         cosPhi      = Math.cos(phi);

@@ -15,14 +15,14 @@ export class Vector3 extends Float32Array
     public constructor(x?: number, y?: number, z?: number)
     {
         super(3);
-        this.x = x || 0.0;
-        this.y = y || 0.0;
-        this.z = z || 0.0;
+        this[0] = x || 0.0;
+        this[1] = y || 0.0;
+        this[2] = z || 0.0;
     }
 
     public dot(vector: Vector3): number
     {
-        return this.x * vector.x + this.y * vector.y + this.z * vector.z;
+        return this[0] * vector[0] + this[1] * vector[1] + this[2] * vector[2];
     }
 
     public getMagnitude(): number
@@ -32,12 +32,12 @@ export class Vector3 extends Float32Array
 
     public add(vector: Vector3): Vector3
     {
-        return new Vector3(this.x + vector.x, this.y + vector.y, this.z + vector.z);
+        return new Vector3(this[0] + vector[0], this[1] + vector[1], this[2] + vector[2]);
     }
 
     public scale(x: number): Vector3
     {
-        return new Vector3(this.x * x, this.y * x, this.z * x);
+        return new Vector3(this[0] * x, this[1] * x, this[2] * x);
     }
 
     public substract(vector: Vector3): Vector3
@@ -52,26 +52,26 @@ export class Vector3 extends Float32Array
 
     public product(vector: Vector3): Vector3
     {
-        return new Vector3(this.x * vector.x, this.y * vector.y, this.z * vector.z);
+        return new Vector3(this[0] * vector[0], this[1] * vector[1], this[2] * vector[2]);
     }
 
     public matrixProduct(matrix: Matrix4): Vector3
     {
-		let w = 1 / ( matrix[ 3 ] * this.x + matrix[ 7 ] * this.y + matrix[ 11 ] * this.z + matrix[ 15 ] );
+		let w = 1 / ( matrix[ 3 ] * this[0] + matrix[ 7 ] * this[1] + matrix[ 11 ] * this[2] + matrix[ 15 ] );
 
         return new Vector3(
-            (matrix[ 0 ] * this.x + matrix[ 4 ] * this.y + matrix[ 8 ] * this.z + matrix[ 12 ]) * w,
-            (matrix[ 1 ] * this.x + matrix[ 5 ] * this.y + matrix[ 9 ] * this.z + matrix[ 13 ]) * w,
-            (matrix[ 2 ] * this.x + matrix[ 6 ] * this.y + matrix[ 10 ] * this.z + matrix[ 14 ]) * w
+            (matrix[ 0 ] * this[0] + matrix[ 4 ] * this[1] + matrix[ 8 ] * this[2] + matrix[ 12 ]) * w,
+            (matrix[ 1 ] * this[0] + matrix[ 5 ] * this[1] + matrix[ 9 ] * this[2] + matrix[ 13 ]) * w,
+            (matrix[ 2 ] * this[0] + matrix[ 6 ] * this[1] + matrix[ 10 ] * this[2] + matrix[ 14 ]) * w
         );
     }
 
     public cross(vector: Vector3): Vector3
     {
         return new Vector3(
-            this.y * vector.z - this.z * vector.y, 
-            this.z * vector.x - this.x * vector.z,
-            this.x * vector.y - this.y * vector.x
+            this[1] * vector[2] - this[2] * vector[1], 
+            this[2] * vector[0] - this[0] * vector[2],
+            this[0] * vector[1] - this[1] * vector[0]
         );
     }
 }
