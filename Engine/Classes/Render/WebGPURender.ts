@@ -98,30 +98,6 @@ export class WebGPURenderer
     }
 
     /**
-     * Renders an actor using a camera.
-     */
-    private renderActor(device: GPUDevice, passEncoder: GPURenderPassEncoder, actor: Actor, camera: WebGPUCamera): void
-    {
-        let pipeline: GPURenderPipeline;
-        let vertexBuffer: GPUBuffer;
-        let mActorBuffer: GPUBuffer;
-        let mViewBuffer: GPUBuffer;
-        let mProjBuffer: GPUBuffer;
-        let mActorRotBuffer: GPUBuffer;
-        let uniformBindingGroup: GPUBindGroup;
-
-        pipeline                = this.getActorPipeline(actor);
-        vertexBuffer            = actor.getMesh().getVertexBuffer(device);
-        mActorBuffer            = this.toUniformGPUBuffer(device, actor.getTransform().getTransformationMatrix());
-        mViewBuffer             = this.toUniformGPUBuffer(device, camera.getTransform().getViewTransformationMatrix());
-        mProjBuffer             = camera.getProjectionBuffer(device);
-        mActorRotBuffer         = this.toUniformGPUBuffer(device, actor.getTransform().getRotationMatrix());
-        uniformBindingGroup     = this.setupUniformBindGroup(device, pipeline, 0, mActorBuffer, mViewBuffer, mProjBuffer, mActorRotBuffer);
-
-        this.draw(passEncoder, pipeline, actor.getMesh(), vertexBuffer, uniformBindingGroup);
-    }
-
-    /**
      * Renders post-processing effects.
      */
     private renderPostProcessing(device: GPUDevice, context: GPUCanvasContext, depthView: GPUTextureView, frameTexture: GPUTexture, sampler: GPUSampler): void
@@ -148,7 +124,7 @@ export class WebGPURenderer
     /**
      * Draws.
      */
-    private draw(passEncoder: GPURenderPassEncoder, pipeline: GPURenderPipeline, mesh:WebGPUMesh, vertexBuffer: GPUBuffer, ...uniformBindingGroups: Array<GPUBindGroup>): void
+    public draw(passEncoder: GPURenderPassEncoder, pipeline: GPURenderPipeline, mesh:WebGPUMesh, vertexBuffer: GPUBuffer, ...uniformBindingGroups: Array<GPUBindGroup>): void
     {
         passEncoder.setPipeline(pipeline);
         passEncoder.setVertexBuffer(0, vertexBuffer);
@@ -175,7 +151,7 @@ export class WebGPURenderer
         passEncoder     = this.getPassEncoder(commandEncoder, view, this.depthView);
 
         for(let actor of actors) if(actor != camera)
-            this.renderActor(this.device, passEncoder, actor, camera);
+            actor.render(this.device, passEncoder, camera);
 
         passEncoder.end();
         this.device.queue.submit([commandEncoder.finish()]);
@@ -380,7 +356,7 @@ export class WebGPURenderer
     /**
      * Generates a buffer from an iterable.
      */
-    private toUniformGPUBuffer(device: GPUDevice, iterable: Float32Array): GPUBuffer
+    public toUniformGPUBuffer(device: GPUDevice, iterable: Float32Array): GPUBuffer
     {
         let buffer: GPUBuffer;
         buffer = device.createBuffer({size: iterable.byteLength, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST});
@@ -456,7 +432,7 @@ export class WebGPURenderer
     /**
      * Setups a bind group used for uniforms.
      */
-    private setupUniformBindGroup(device: GPUDevice, pipeline: GPURenderPipeline, bindingIndex:number, ...buffers: Array<GPUBuffer | GPUTexture | GPUSampler>): GPUBindGroup
+    public setupUniformBindGroup(device: GPUDevice, pipeline: GPURenderPipeline, bindingIndex:number, ...buffers: Array<GPUBuffer | GPUTexture | GPUSampler>): GPUBindGroup
     {
         let entries: Array<GPUBindGroupEntry>;
         entries = new Array<GPUBindGroupEntry>();

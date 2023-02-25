@@ -45,6 +45,11 @@ export class WebGPUCamera extends Actor
         this.renderer.render(Actor.getActors(), this);
     }
 
+    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: WebGPUCamera): void 
+    {
+        return;
+    }
+
     public getRenderer(): WebGPURenderer
     {
         return this.renderer;
