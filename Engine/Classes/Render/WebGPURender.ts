@@ -56,10 +56,12 @@ export class WebGPURenderer
 
     private primitiveTopology: GPUPrimitiveTopology;
 
+    private onResize: Function;
+
     /**
      * Creates a new WebGPURenderer.
      */
-    public constructor()
+    public constructor(onResize?: Function)
     {
         this.usePostProcessing              = false;
         this.device                         = null;
@@ -79,6 +81,8 @@ export class WebGPURenderer
         this.setup();
         
         this.primitiveTopology = "triangle-list";
+
+        this.onResize = onResize || function(){};
     }
 
     /**
@@ -295,6 +299,8 @@ export class WebGPURenderer
         this.renderingCanvas.resize();
         this.ppRenderingCanvas.resize();
         this.depthView = this.setupDepthView(device);
+
+        this.onResize();
     }
 
     /**

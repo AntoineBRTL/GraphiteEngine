@@ -8,9 +8,13 @@ export class WebGPUCamera extends Actor
     protected near: number;
     protected far: number;
 
+    private projectionMatrix: ProjectionMatrix;
+    private projectionMatrixBuffer: GPUBuffer | null;
+
     public setFov(fov: number)
     {
         this.fov = fov;
+        this.onChange();
     }
 
     private renderer: WebGPURenderer;
@@ -18,15 +22,23 @@ export class WebGPUCamera extends Actor
     public constructor()
     {
         super();
-        this.renderer = new WebGPURenderer();
+        this.renderer = new WebGPURenderer(this.onChange.bind(this));
 
         this.fov = 60.0;
         this.near = 0.01;
         this.far = 100.0;
+
+        this.projectionMatrix = this.setupProjectionMatrix();
+        this.projectionMatrixBuffer = null;
     }
 
-    /** TODO: OPTIMISATION, PROJECTION MATRIX IS COMPUTED MORE THAN ONE TIME PER FRAME */
-    public getProjectionMatrixBuffer(device: GPUDevice): GPUBuffer
+    private onChange()
+    {
+        this.projectionMatrix = this.setupProjectionMatrix();
+        this.projectionMatrixBuffer = null;
+    }
+
+    private setupProjectionMatrixBuffer(device: GPUDevice): GPUBuffer
     {
         let matrix = this.getProjectionMatrix();
         let buffer = device.createBuffer(
@@ -40,13 +52,25 @@ export class WebGPUCamera extends Actor
         return buffer;
     }
 
+    private setupProjectionMatrix(): ProjectionMatrix
+    {
+        let canvas = this.renderer.getUsedCanvas().getCanvas();
+        return new ProjectionMatrix(this.fov * (Math.PI / 180.0), canvas.width / canvas.height, this.near, this.far);
+    }
+
+    public getProjectionMatrixBuffer(device: GPUDevice): GPUBuffer
+    {
+        if(!this.projectionMatrixBuffer)
+            this.projectionMatrixBuffer = this.setupProjectionMatrixBuffer(device);
+        return this.projectionMatrixBuffer;
+    }
+
     public override update(deltaTime: number): void 
     {
         this.renderer.render(Actor.getActors(), this);
     }
 
-    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: WebGPUCamera): void 
-    {
+    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: WebGPUCamera): void {
         return;
     }
 
@@ -57,8 +81,7 @@ export class WebGPUCamera extends Actor
 
     public getProjectionMatrix(): ProjectionMatrix
     {
-        let canvas = this.renderer.getUsedCanvas().getCanvas();
-        return new ProjectionMatrix(this.fov * (Math.PI / 180.0), canvas.width / canvas.height, this.near, this.far);
+        return this.projectionMatrix;
     }
 
     public getNear(): number
