@@ -25,8 +25,8 @@ export class WebGPUCamera extends Actor
         this.far = 100.0;
     }
 
-    // TODO: optimization
-    public getProjectionBuffer(device: GPUDevice): GPUBuffer
+    /** TODO: OPTIMISATION, PROJECTION MATRIX IS COMPUTED MORE THAN ONE TIME PER FRAME */
+    public getProjectionMatrixBuffer(device: GPUDevice): GPUBuffer
     {
         let matrix = this.getProjectionMatrix();
         let buffer = device.createBuffer(

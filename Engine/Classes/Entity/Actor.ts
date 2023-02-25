@@ -36,7 +36,7 @@ export class Actor
         vertexBuffer            = this.mesh.getVertexBuffer(device);
         mActorBuffer            = camera.getRenderer().toUniformGPUBuffer(device, this.transform.getTransformationMatrix());
         mViewBuffer             = camera.getRenderer().toUniformGPUBuffer(device, camera.getTransform().getViewTransformationMatrix());
-        mProjBuffer             = camera.getProjectionBuffer(device);
+        mProjBuffer             = camera.getProjectionMatrixBuffer(device);
         mActorRotBuffer         = camera.getRenderer().toUniformGPUBuffer(device, this.transform.getRotationMatrix());
         uniformBindingGroup     = camera.getRenderer().setupUniformBindGroup(device, pipeline, 0, mActorBuffer, mViewBuffer, mProjBuffer, mActorRotBuffer);
 
