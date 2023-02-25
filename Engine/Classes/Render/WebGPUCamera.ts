@@ -26,7 +26,7 @@ export class WebGPUCamera extends Actor
 
         this.fov = 60.0;
         this.near = 0.01;
-        this.far = 100.0;
+        this.far = 1000.0;
 
         this.projectionMatrix = this.setupProjectionMatrix();
         this.projectionMatrixBuffer = null;

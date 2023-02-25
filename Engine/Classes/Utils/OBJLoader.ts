@@ -80,33 +80,55 @@ export class OBJLoader{
                         let ti = parseInt(indices[1]) - 1;
                         let ni = parseInt(indices[2]) - 1;
 
-                        mesh.addVertexAsNumbers(...vertices[vi]);
-                        mesh.addVertexAsNumbers(...uvs[ti]);
-                        mesh.addVertexAsNumbers(...normals[ni]);
+                        mesh.addVertexAsNumbers(...vertices[vi || 0]);
+                        mesh.addVertexAsNumbers(...uvs[ti || 0]);
+                        mesh.addVertexAsNumbers(...normals[ni || 0]);
                     }
+
+                    /** TRIANGLES */
+                    if(splitedLine.length === 3)
+                    {
+                        setIndice(splitedLine[0].split("/"));
+                        setIndice(splitedLine[1].split("/"));
+                        setIndice(splitedLine[2].split("/"));
+                    }
+
+                    /** QUADS */
+                    if(splitedLine.length === 4)
+                    {
+                        setIndice(splitedLine[0].split("/"));
+                        setIndice(splitedLine[1].split("/"));
+                        setIndice(splitedLine[2].split("/"));
+                        setIndice(splitedLine[0].split("/"));
+                        setIndice(splitedLine[3].split("/"));
+                        setIndice(splitedLine[2].split("/"));
+                    }
+
+                    if(splitedLine.length > 4)
+                        throw new Error("n-gons with n > 4 is not supported, please use Blender and triangulate your model");
                     
-                    let indices_0: string[];
-                    let indices_1: string[];
-                    let indices_2: string[];
+                    // let indices_0: string[];
+                    // let indices_1: string[];
+                    // let indices_2: string[];
 
-                    indices_0 = splitedLine[0].split("/");
-                    indices_1 = splitedLine[1].split("/");
-                    indices_2 = splitedLine[2].split("/");
+                    // indices_0 = splitedLine[0].split("/");
+                    // indices_1 = splitedLine[1].split("/");
+                    // indices_2 = splitedLine[2].split("/");
 
-                    setIndice(indices_0);
-                    setIndice(indices_1);
-                    setIndice(indices_2);
+                    // setIndice(indices_0);
+                    // setIndice(indices_1);
+                    // setIndice(indices_2);
 
-                    if(splitedLine.length < 4) return;
+                    // if(splitedLine.length < 4) return;
 
-                    let indices_3: string[];
-                    indices_3 = splitedLine[3].split("/");
+                    // let indices_3: string[];
+                    // indices_3 = splitedLine[3].split("/");
 
-                    setIndice(indices_0);
-                    setIndice(indices_3);
-                    setIndice(indices_2);
+                    // setIndice(indices_0);
+                    // setIndice(indices_3);
+                    // setIndice(indices_2);
 
-                    return;
+                    // return;
                 }
             });
             
