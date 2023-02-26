@@ -14,4 +14,10 @@ export class FileReader
             }
         }
     }
+
+    public async readFileAsync(path: string): Promise<string>
+    {
+        let response = await fetch(path);
+        return await response.text();
+    }
 }

@@ -10,129 +10,109 @@ export class OBJLoader{
         this.fileReader = fileReader;
     }
 
-    public load(path: string, mesh: WebGPUMesh, callback: Function){
+    public async load(path: string, mesh: WebGPUMesh, callback: Function)
+    {
+        let obj: string = await this.fileReader.readFileAsync(path);
+        let lines: Array<string>;
+        let vertexPositions: Array<Array<number>>;
+        let vertexNormals: Array<Array<number>>;
+        let vertexUVs: Array<Array<number>>;
 
-        // read the file 
-        this.fileReader.readFile(path, function(objFileContent: string){
+        lines               = obj.split("\n");
+        vertexPositions     = new Array();
+        vertexNormals       = new Array();
+        vertexUVs           = new Array(); 
 
-            let lines: string[];
-            let vertices: number[][];
-            let normals: number[][];
-            let uvs: number[][];
+        for(let line of lines)
+        {
+            let name: string;
+            let value: string[];
 
-            vertices    = new Array();
-            normals     = new Array();
-            uvs         = new Array(); 
-            lines       = objFileContent.split("\n");
+            value = line.replace("\r", "").split(" ");
+            name = value.shift() || "";
 
-            lines.forEach(function(line: string) 
+            if(name == "v")
             {
-                let splitedLine: string[];
-                let name: string;
+                let vertexPosition: Array<number> = new Array<number>();
 
-                splitedLine = line.replace("\r", "").split(" ");
-                name = splitedLine.shift() || "";
+                for(let coordinate of value)
+                    vertexPosition.push(parseFloat(coordinate));
 
-                if(name == "v")
+                vertexPositions.push(vertexPosition);
+                continue;
+            }
+
+            if(name == "vt")
+            {
+                let vertexTexture: Array<number> = new Array<number>();
+
+                for(let coordinate of value)
+                    vertexTexture.push(parseFloat(coordinate));
+
+                vertexUVs.push(vertexTexture);
+                continue;
+            }
+
+            if(name == "vn")
+            {
+                let vertexNormal: Array<number> = new Array<number>();
+
+                for(let coordinate of value)
+                    vertexNormal.push(parseFloat(coordinate));
+
+                vertexNormals.push(vertexNormal);
+                continue;
+            }
+
+            if(name == "f")
+            {
+                function setIndice(indices: string[])
                 {
-                    let v = new Array();
-                    for(let i = 0; i < splitedLine.length; i++)
-                    {
-                        let coordinate = parseFloat(splitedLine[i]);
-                        v.push(coordinate);
-                    }
+                    let vertexPositionIndex = parseInt(indices[0]) - 1;
+                    let vertexUVIndex = parseInt(indices[1]) - 1;
+                    let vertexNormalIndex = parseInt(indices[2]) - 1;
 
-                    vertices.push(v);
-                    return;
+                    mesh.addVertexAsNumbers(...vertexPositions[vertexPositionIndex || 0]);
+                    mesh.addVertexAsNumbers(...vertexUVs[vertexUVIndex || 0]);
+                    mesh.addVertexAsNumbers(...vertexNormals[vertexNormalIndex || 0]);
                 }
 
-                if(name == "vn")
+                /** TRIANGLES */
+                if(value.length == 3)
                 {
-                    let n = new Array();
-                    for(let i = 0; i < splitedLine.length; i++)
-                    {
-                        let coordinate = parseFloat(splitedLine[i]);
-                        n.push(coordinate);
-                    }
+                    let indices_0: Array<string> = value[0].split("/");
+                    let indices_1: Array<string> = value[1].split("/");
+                    let indices_2: Array<string> = value[2].split("/");
 
-                    normals.push(n);
-                    return;
+                    setIndice(indices_0);
+                    setIndice(indices_1);
+                    setIndice(indices_2);
+
+                    continue;
                 }
 
-                if(name == "vt")
+                /** QUADS */
+                if(value.length == 4)
                 {
-                    let u = new Array();
-                    for(let i = 0; i < splitedLine.length; i++)
-                    {
-                        let coordinate = parseFloat(splitedLine[i]);
-                        u.push(coordinate);
-                    }
+                    let indices_0: Array<string> = value[0].split("/");
+                    let indices_1: Array<string> = value[1].split("/");
+                    let indices_2: Array<string> = value[2].split("/");
+                    let indices_3: Array<string> = value[3].split("/");
 
-                    uvs.push(u);
-                    return;
+                    setIndice(indices_0);
+                    setIndice(indices_1);
+                    setIndice(indices_2);
+                    setIndice(indices_0);
+                    setIndice(indices_3);
+                    setIndice(indices_2);
+
+                    continue;
                 }
 
-                if(name == "f")
-                {
-                    function setIndice(indices: string[])
-                    {
-                        let vi = parseInt(indices[0]) - 1;
-                        let ti = parseInt(indices[1]) - 1;
-                        let ni = parseInt(indices[2]) - 1;
-
-                        mesh.addVertexAsNumbers(...vertices[vi || 0]);
-                        mesh.addVertexAsNumbers(...uvs[ti || 0]);
-                        mesh.addVertexAsNumbers(...normals[ni || 0]);
-                    }
-
-                    /** TRIANGLES */
-                    if(splitedLine.length === 3)
-                    {
-                        setIndice(splitedLine[0].split("/"));
-                        setIndice(splitedLine[1].split("/"));
-                        setIndice(splitedLine[2].split("/"));
-                    }
-
-                    /** QUADS */
-                    if(splitedLine.length === 4)
-                    {
-                        setIndice(splitedLine[0].split("/"));
-                        setIndice(splitedLine[1].split("/"));
-                        setIndice(splitedLine[2].split("/"));
-                        setIndice(splitedLine[0].split("/"));
-                        setIndice(splitedLine[3].split("/"));
-                        setIndice(splitedLine[2].split("/"));
-                    }
-
-                    if(splitedLine.length > 4)
-                        throw new Error("n-gons with n > 4 is not supported, please use Blender and triangulate your model");
-                    
-                    // let indices_0: string[];
-                    // let indices_1: string[];
-                    // let indices_2: string[];
-
-                    // indices_0 = splitedLine[0].split("/");
-                    // indices_1 = splitedLine[1].split("/");
-                    // indices_2 = splitedLine[2].split("/");
-
-                    // setIndice(indices_0);
-                    // setIndice(indices_1);
-                    // setIndice(indices_2);
-
-                    // if(splitedLine.length < 4) return;
-
-                    // let indices_3: string[];
-                    // indices_3 = splitedLine[3].split("/");
-
-                    // setIndice(indices_0);
-                    // setIndice(indices_3);
-                    // setIndice(indices_2);
-
-                    // return;
-                }
-            });
-            
-            callback();
-        });
+                throw new Error("n-gons with n > 4 is not supported, please use Blender and triangulate your model");    
+            }
+        }
+        
+        callback();
     }
 }
