@@ -1,6 +1,6 @@
 # Graphite
 Graphite is a powerfull graphic engine for web applications.
 
-This engine is developped in Typescript and can run in a browser and Electron. The engine is powered by WebGPU and no external libraries are required to run the engine.
+This engine is developped in Typescript and can run in a browser and Electron. Graphite is powered by WebGPU and requires no external dependencies.
 
 ![alt text](Demo.png)
