@@ -2,6 +2,7 @@ import { Actor } from "../Entity/Actor.js";
 import { Matrix4 } from "../Math/Matrix4.js";
 import { Vector3 } from "../Math/Vector3.js";
 import { RenderingCanvas } from "./RenderingCanvas.js";
+import { Sky } from "./Sky";
 import { Vertex } from "./Vertex.js";
 import { WebGPUCamera } from "./WebGPUCamera.js";
 import { WebGPUMaterial } from "./WebGPUMaterial.js";
@@ -56,6 +57,7 @@ export class WebGPURenderer
 
     private primitiveTopology: GPUPrimitiveTopology;
 
+    /** TODO: CHANGE THIS */
     private onResize: Function;
 
     /**
@@ -139,7 +141,7 @@ export class WebGPURenderer
     /**
      * Render an array of actors using a specific camera.
      */
-    public render(actors: Actor[], camera: WebGPUCamera): void
+    public render(actors: Actor[], camera: WebGPUCamera, sky: Sky): void
     {
         if(!this.device 
         || !this.ctx 
@@ -150,9 +152,11 @@ export class WebGPURenderer
         let view: GPUTextureView;
         let passEncoder: GPURenderPassEncoder;
 
-        commandEncoder  = this.device.createCommandEncoder();
-        view            = this.getTextureView(this.ctx);
-        passEncoder     = this.getPassEncoder(commandEncoder, view, this.depthView);
+        commandEncoder              = this.device.createCommandEncoder();
+        view                        = this.getTextureView(this.ctx);
+        passEncoder                 = this.getPassEncoder(commandEncoder, view, this.depthView);
+
+        sky.render(this.device, passEncoder, camera);
 
         for(let actor of actors) if(actor != camera)
             actor.render(this.device, passEncoder, camera);

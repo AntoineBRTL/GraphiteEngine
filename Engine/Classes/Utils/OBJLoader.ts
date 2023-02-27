@@ -2,17 +2,8 @@ import { WebGPUMesh } from "../Render/WebGPUMesh.js";
 import { FileReader } from "./FileReader.js";
 
 export class OBJLoader{
-
-    private fileReader: FileReader;
-
-    public constructor(fileReader: FileReader)
+    public load(obj: string, mesh: WebGPUMesh)
     {
-        this.fileReader = fileReader;
-    }
-
-    public async load(path: string, mesh: WebGPUMesh, callback: Function)
-    {
-        let obj: string = await this.fileReader.readFileAsync(path);
         let lines: Array<string>;
         let vertexPositions: Array<Array<number>>;
         let vertexNormals: Array<Array<number>>;
@@ -112,7 +103,5 @@ export class OBJLoader{
                 throw new Error("n-gons with n > 4 is not supported, please use Blender and triangulate your model");    
             }
         }
-        
-        callback();
     }
 }

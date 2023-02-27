@@ -37,12 +37,14 @@ export class WebGPUMaterial
     private vertexShader: WebGPUShader;
     private fragmentShader: WebGPUShader;
     private pipeline: GPURenderPipeline | null;
+    private depthWriteEnabled: boolean;
 
-    public constructor()
+    public constructor(vertexShaderSource?: string, fragmentShaderSource?: string, depthWriteEnabled?: boolean)
     {
-        this.vertexShader = new WebGPUShader(vertexShader);
-        this.fragmentShader = new WebGPUShader(fragmentShader);
+        this.vertexShader = new WebGPUShader(vertexShaderSource || vertexShader);
+        this.fragmentShader = new WebGPUShader(fragmentShaderSource || fragmentShader);
         this.pipeline = null;
+        this.depthWriteEnabled = depthWriteEnabled == undefined? true : depthWriteEnabled;
     }
 
     private getVertexShader(device: GPUDevice): GPUShaderModule
@@ -72,6 +74,7 @@ export class WebGPUMaterial
     private setupRenderPipeline(renderer: WebGPURenderer): GPURenderPipeline
     {
         let pipeline: GPURenderPipeline;
+
         pipeline = renderer.getDevice().createRenderPipeline(
             {
                 vertex: {
@@ -93,7 +96,7 @@ export class WebGPUMaterial
                     topology: renderer.getPrimitiveTopology()
                 },
                 depthStencil: {
-                    depthWriteEnabled: true,
+                    depthWriteEnabled: this.depthWriteEnabled,
                     depthCompare: 'less',
                     format: 'depth24plus',
                 }

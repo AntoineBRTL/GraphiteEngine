@@ -35,7 +35,7 @@ export * from "./Classes/Utils/FileReader.js";
 export * from "./Classes/Utils/OBJLoader.js";
 
 export let fileReader:      FileReader  = new FileReader();
-export let objLoader:       OBJLoader   = new OBJLoader(fileReader);
+export let objLoader:       OBJLoader   = new OBJLoader();
 export let inputThread:     Thread      = new Thread();       /** INPUT THREAD */
 export let renderThread:    Thread      = new Thread();       /** MAIN THREAD */
 export let input:           Input       = new Input(inputThread);
