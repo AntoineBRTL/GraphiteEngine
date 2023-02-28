@@ -1,6 +1,7 @@
-import { WebGPUCamera } from "./WebGPUCamera.js";
-import { WebGPUMaterial } from "./WebGPUMaterial.js";
-import { Primitive, WebGPUMesh } from "./WebGPUMesh.js";
+import { Camera } from "./Camera.js";
+import { Material } from "./Material.js";
+import { Primitive, Mesh } from "./Mesh.js";
+import { Renderable } from "./Renderable.js";
 
 let vertexShader = `
 @group(0) @binding(0) var<uniform> mViewRot : mat4x4<f32>;
@@ -72,18 +73,14 @@ fn fbm(st: vec2<f32>) -> f32
     return value;
 }`;
 
-export class Sky
+export class Sky extends Renderable
 {
-    private mesh: WebGPUMesh;
-    private material: WebGPUMaterial;
-
     public constructor()
     {
-        this.mesh = WebGPUMesh.generate(Primitive.Sphere);
-        this.material = new WebGPUMaterial(vertexShader, fragmentShader, false);
+        super(Mesh.generate(Primitive.Sphere), new Material(vertexShader, fragmentShader, false));
     }
 
-    public render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: WebGPUCamera): void
+    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void
     {
         let pipeline: GPURenderPipeline;
         let vertexBuffer: GPUBuffer;

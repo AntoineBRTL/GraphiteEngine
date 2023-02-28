@@ -1,9 +1,9 @@
 import { Actor } from "../Entity/Actor.js";
 import { ProjectionMatrix } from "../Math/ProjectionMatrix.js";
 import { Sky } from "./Sky.js";
-import { WebGPURenderer } from "./WebGPURender.js";
+import { Renderer } from "./Renderer.js";
 
-export class WebGPUCamera extends Actor
+export class Camera extends Actor
 {
     protected fov: number;
     protected near: number;
@@ -20,12 +20,12 @@ export class WebGPUCamera extends Actor
         this.onChange();
     }
 
-    private renderer: WebGPURenderer;
+    private renderer: Renderer;
 
     public constructor()
     {
         super();
-        this.renderer = new WebGPURenderer(this.onChange.bind(this));
+        this.renderer = new Renderer(this.onChange.bind(this));
 
         this.fov = 60.0;
         this.near = 0.01;
@@ -75,11 +75,11 @@ export class WebGPUCamera extends Actor
         this.renderer.render(Actor.getActors(), this, this.sky);
     }
 
-    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: WebGPUCamera): void {
+    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void {
         return;
     }
 
-    public getRenderer(): WebGPURenderer
+    public getRenderer(): Renderer
     {
         return this.renderer;
     }

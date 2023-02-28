@@ -1,5 +1,5 @@
-import { WebGPURenderer } from "./WebGPURender.js";
-import { WebGPUShader } from "./WebGPUShader.js";
+import { Renderer } from "./Renderer.js";
+import { Shader } from "./Shader.js";
 
 let vertexShader = `
 @group(0) @binding(0) var<uniform> mActor : mat4x4<f32>;
@@ -32,17 +32,17 @@ fn main(@location(0) uv: vec2<f32>, @location(1) normal: vec4<f32>) -> @location
     return vec4<f32>(color, 1.0);
 }`;
 
-export class WebGPUMaterial
+export class Material
 {
-    private vertexShader: WebGPUShader;
-    private fragmentShader: WebGPUShader;
+    private vertexShader: Shader;
+    private fragmentShader: Shader;
     private pipeline: GPURenderPipeline | null;
     private depthWriteEnabled: boolean;
 
     public constructor(vertexShaderSource?: string, fragmentShaderSource?: string, depthWriteEnabled?: boolean)
     {
-        this.vertexShader = new WebGPUShader(vertexShaderSource || vertexShader);
-        this.fragmentShader = new WebGPUShader(fragmentShaderSource || fragmentShader);
+        this.vertexShader = new Shader(vertexShaderSource || vertexShader);
+        this.fragmentShader = new Shader(fragmentShaderSource || fragmentShader);
         this.pipeline = null;
         this.depthWriteEnabled = depthWriteEnabled == undefined? true : depthWriteEnabled;
     }
@@ -63,7 +63,7 @@ export class WebGPUMaterial
         return shader;
     }
 
-    public useShader(vertexShader: WebGPUShader, fragmentShader: WebGPUShader): void
+    public useShader(vertexShader: Shader, fragmentShader: Shader): void
     {
         this.vertexShader = vertexShader;
         this.fragmentShader = fragmentShader;
@@ -71,7 +71,7 @@ export class WebGPUMaterial
         this.pipeline = null;
     }
 
-    private setupRenderPipeline(renderer: WebGPURenderer): GPURenderPipeline
+    private setupRenderPipeline(renderer: Renderer): GPURenderPipeline
     {
         let pipeline: GPURenderPipeline;
 
@@ -133,7 +133,7 @@ export class WebGPUMaterial
         ];
     }
 
-    public getRenderPipeline(renderer: WebGPURenderer): GPURenderPipeline
+    public getRenderPipeline(renderer: Renderer): GPURenderPipeline
     {
         if(this.pipeline)
             return this.pipeline;

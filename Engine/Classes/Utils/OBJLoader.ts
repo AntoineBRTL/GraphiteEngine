@@ -1,8 +1,8 @@
-import { WebGPUMesh } from "../Render/WebGPUMesh.js";
+import { Mesh } from "../Render/Mesh.js";
 import { FileReader } from "./FileReader.js";
 
 export class OBJLoader{
-    public load(obj: string, mesh: WebGPUMesh)
+    public load(obj: string, mesh: Mesh)
     {
         let lines: Array<string>;
         let vertexPositions: Array<Array<number>>;

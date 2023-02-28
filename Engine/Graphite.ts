@@ -23,13 +23,13 @@ export * from "./Classes/Math/Transform.js";
 export * from "./Classes/Math/TranslationMatrix.js";
 export * from "./Classes/Math/Vector3.js";
 /** RENDER */
-export * from "./Classes/Render/RenderingCanvas.js";
+export * from "./Classes/Render/RenderEnvironment.js";
 export * from "./Classes/Render/Vertex.js";
-export * from "./Classes/Render/WebGPUCamera.js";
-export * from "./Classes/Render/WebGPUMaterial.js";
-export * from "./Classes/Render/WebGPUMesh.js";
-export * from "./Classes/Render/WebGPURender.js";
-export * from "./Classes/Render/WebGPUShader.js";
+export * from "./Classes/Render/Camera.js";
+export * from "./Classes/Render/Material.js";
+export * from "./Classes/Render/Mesh.js";
+export * from "./Classes/Render/Renderer.js";
+export * from "./Classes/Render/Shader.js";
 /** UTILS */
 export * from "./Classes/Utils/FileReader.js";
 export * from "./Classes/Utils/OBJLoader.js";

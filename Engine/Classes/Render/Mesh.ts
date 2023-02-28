@@ -7,7 +7,7 @@ export enum Primitive
     IcoSphere
 }
 
-export class WebGPUMesh
+export class Mesh
 {
     /** POSITION, UV, NORMAL */
     private vertices: number[];
@@ -89,23 +89,23 @@ export class WebGPUMesh
         this.reset();
     }
 
-    public static generate(primitive: Primitive): WebGPUMesh
+    public static generate(primitive: Primitive): Mesh
     {
         if(primitive == Primitive.Sphere) return this.generateSphere();
         if(primitive == Primitive.IcoSphere) return this.generateIcoSphere();
-        return new WebGPUMesh();
+        return new Mesh();
     }
 
-    private static generateSphere(): WebGPUMesh
+    private static generateSphere(): Mesh
     {
-        let mesh = new WebGPUMesh();
+        let mesh = new Mesh();
         mesh.fromString(sphereOBJ);
         return mesh;
     }
 
-    private static generateIcoSphere(): WebGPUMesh
+    private static generateIcoSphere(): Mesh
     {
-        let mesh = new WebGPUMesh();
+        let mesh = new Mesh();
         mesh.fromString(icoSphereOBJ);
         return mesh;
     }

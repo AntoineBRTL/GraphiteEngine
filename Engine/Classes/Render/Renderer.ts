@@ -1,13 +1,13 @@
 import { Actor } from "../Entity/Actor.js";
 import { Matrix4 } from "../Math/Matrix4.js";
 import { Vector3 } from "../Math/Vector3.js";
-import { RenderingCanvas } from "./RenderingCanvas.js";
-import { Sky } from "./Sky";
+import { RenderingCanvas } from "./RenderEnvironment.js";
+import { Sky } from "./Sky.js";
 import { Vertex } from "./Vertex.js";
-import { WebGPUCamera } from "./WebGPUCamera.js";
-import { WebGPUMaterial } from "./WebGPUMaterial.js";
-import { WebGPUMesh } from "./WebGPUMesh.js";
-import { WebGPUShader } from "./WebGPUShader.js";
+import { Camera } from "./Camera.js";
+import { Material } from "./Material.js";
+import { Mesh } from "./Mesh.js";
+import { Shader } from "./Shader.js";
 
 let vertexShader = `
 struct VertexOutput 
@@ -37,7 +37,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32>
     return sqrt(color);
 }`;
 
-export class WebGPURenderer
+export class Renderer
 {
     private usePostProcessing: boolean;
 
@@ -51,8 +51,8 @@ export class WebGPURenderer
     private ppctx: GPUCanvasContext | null;
     private depthView: GPUTextureView | null;
 
-    private quadMesh: WebGPUMesh;
-    private quadMaterial: WebGPUMaterial;
+    private quadMesh: Mesh;
+    private quadMaterial: Material;
     private sampler: GPUSampler | null;
 
     private primitiveTopology: GPUPrimitiveTopology;
@@ -130,7 +130,7 @@ export class WebGPURenderer
     /**
      * Draws.
      */
-    public draw(passEncoder: GPURenderPassEncoder, pipeline: GPURenderPipeline, mesh:WebGPUMesh, vertexBuffer: GPUBuffer, ...uniformBindingGroups: Array<GPUBindGroup>): void
+    public draw(passEncoder: GPURenderPassEncoder, pipeline: GPURenderPipeline, mesh:Mesh, vertexBuffer: GPUBuffer, ...uniformBindingGroups: Array<GPUBindGroup>): void
     {
         passEncoder.setPipeline(pipeline);
         passEncoder.setVertexBuffer(0, vertexBuffer);
@@ -141,7 +141,7 @@ export class WebGPURenderer
     /**
      * Render an array of actors using a specific camera.
      */
-    public render(actors: Actor[], camera: WebGPUCamera, sky: Sky): void
+    public render(actors: Actor[], camera: Camera, sky: Sky): void
     {
         if(!this.device 
         || !this.ctx 
@@ -168,11 +168,11 @@ export class WebGPURenderer
     /**
      * Setups the quad's mesh used for post-processing.
      */
-    private setupQuadMesh(): WebGPUMesh
+    private setupQuadMesh(): Mesh
     {
-        let quadMesh: WebGPUMesh;
+        let quadMesh: Mesh;
 
-        quadMesh = new WebGPUMesh();
+        quadMesh = new Mesh();
         quadMesh.addVertex(
             new Vertex(new Vector3(-1.0,  1.0, 0.0)),
             new Vertex(new Vector3(-1.0, -1.0, 0.0)),
@@ -188,11 +188,11 @@ export class WebGPURenderer
     /**
      * Setups the quad's material used for post-processing.
      */
-    private setupQuadMaterial(): WebGPUMaterial
+    private setupQuadMaterial(): Material
     {
-        let material: WebGPUMaterial;
-        material = new WebGPUMaterial();
-        material.useShader(new WebGPUShader(vertexShader), new WebGPUShader(fragmentShader));
+        let material: Material;
+        material = new Material();
+        material.useShader(new Shader(vertexShader), new Shader(fragmentShader));
 
         return material;
     }
@@ -203,7 +203,7 @@ export class WebGPURenderer
     private setup(): void
     {
         this.setupAdapter()
-        .then(function(this: WebGPURenderer, adapter: GPUAdapter)
+        .then(function(this: Renderer, adapter: GPUAdapter)
         {
             this.adapter = adapter;
             this.setupDevice(this.adapter).then(this.finalize.bind(this));

@@ -1,5 +1,5 @@
 import { Thread } from "../Core/Thread.js";
-import { WebGPUCamera } from "../Render/WebGPUCamera";
+import { Camera } from "../Render/Camera.js";
 import { Actor } from "./Actor.js";
 
 export class FrameRateDebuger extends Actor
@@ -29,7 +29,7 @@ export class FrameRateDebuger extends Actor
         this.div.innerText = (1.0 / this.thread.getDeltaTime()).toFixed(0).toString();
     }
 
-    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: WebGPUCamera): void 
+    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void 
     {
         return;   
     }

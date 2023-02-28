@@ -1,4 +1,4 @@
-export class WebGPUShader
+export class Shader
 {
     private source: string;
     private shader: GPUShaderModule | null;

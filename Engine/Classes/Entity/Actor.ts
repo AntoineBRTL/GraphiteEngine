@@ -1,28 +1,27 @@
 import { Transform } from "../Math/Transform.js";
-import { WebGPUCamera } from "../Render/WebGPUCamera.js";
-import { WebGPUMaterial } from "../Render/WebGPUMaterial.js";
-import { WebGPUMesh } from "../Render/WebGPUMesh.js";
+import { Camera } from "../Render/Camera.js";
+import { Material } from "../Render/Material.js";
+import { Mesh } from "../Render/Mesh.js";
+import { Renderable } from "../Render/Renderable.js";
 
-export class Actor
+export class Actor extends Renderable
 {
     private static actors: Array<Actor> = new Array<Actor>();
 
     protected transform: Transform;
-    private mesh: WebGPUMesh;
-    private material: WebGPUMaterial;
 
     public constructor()
     {
+        super(new Mesh(), new Material());
+
         Actor.actors.push(this);
 
         this.transform  = new Transform();
-        this.mesh       = new WebGPUMesh();
-        this.material   = new WebGPUMaterial();
     }
     
     public update(deltaTime: number): void {};
 
-    public render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: WebGPUCamera): void
+    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void
     {
         let pipeline: GPURenderPipeline;
         let vertexBuffer: GPUBuffer;
@@ -48,28 +47,8 @@ export class Actor
         return Actor.actors;
     }
 
-    public getMesh(): WebGPUMesh
-    {
-        return this.mesh;
-    }
-
-    public getMaterial(): WebGPUMaterial
-    {
-        return this.material;
-    }
-
     public getTransform(): Transform
     {
         return this.transform;
-    }
-
-    protected setMesh(mesh: WebGPUMesh): void
-    {
-        this.mesh = mesh;
-    }
-
-    protected setMaterial(material: WebGPUMaterial): void
-    {
-        this.material = material;
     }
 }

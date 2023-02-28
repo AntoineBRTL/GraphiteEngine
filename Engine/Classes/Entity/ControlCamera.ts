@@ -1,7 +1,7 @@
 import { input, renderThread, Vector3 } from "../../Graphite.js";
-import { WebGPUCamera } from "../Render/WebGPUCamera.js";
+import { Camera } from "../Render/Camera.js";
 
-export class ControlCamera extends WebGPUCamera
+export class ControlCamera extends Camera
 {
     private speed: number;
     private flySpeed: number;
