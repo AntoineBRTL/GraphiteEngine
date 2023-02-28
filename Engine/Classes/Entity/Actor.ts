@@ -8,18 +8,29 @@ export class Actor extends Renderable
 {
     private static actors: Array<Actor> = new Array<Actor>();
 
+    public static getActors(): Array<Actor>
+    {
+        return Actor.actors;
+    }
+
     protected transform: Transform;
 
     public constructor()
     {
         super(new Mesh(), new Material());
-
-        Actor.actors.push(this);
-
         this.transform  = new Transform();
     }
     
-    public update(deltaTime: number): void {};
+    public update(deltaTime: number): void 
+    {
+        return;
+    }
+
+    protected override async start(): Promise<void> 
+    {
+        super.start();
+        Actor.actors.push(this);
+    }
 
     public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void
     {
@@ -40,11 +51,6 @@ export class Actor extends Renderable
         uniformBindingGroup     = camera.getRenderer().setupUniformBindGroup(device, pipeline, 0, mActorBuffer, mViewBuffer, mProjBuffer, mActorRotBuffer);
 
         camera.getRenderer().draw(passEncoder, pipeline, this.mesh, vertexBuffer, uniformBindingGroup);
-    }
-
-    public static getActors(): Actor[]
-    {
-        return Actor.actors;
     }
 
     public getTransform(): Transform

@@ -2,6 +2,7 @@ import { Actor } from "../Entity/Actor.js";
 import { ProjectionMatrix } from "../Math/ProjectionMatrix.js";
 import { Sky } from "./Sky.js";
 import { Renderer } from "./Renderer.js";
+import { Renderable } from "./Renderable.js";
 
 export class Camera extends Actor
 {
@@ -72,7 +73,7 @@ export class Camera extends Actor
 
     public override update(deltaTime: number): void 
     {
-        this.renderer.render(Actor.getActors(), this, this.sky);
+        this.renderer.render(Renderable.getRenderables(), this, this.sky);
     }
 
     public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void {

@@ -2,6 +2,7 @@ import { Mesh } from "../Render/Mesh.js";
 import { FileReader } from "./FileReader.js";
 
 export class OBJLoader{
+
     public load(obj: string, mesh: Mesh)
     {
         let lines: Array<string>;
@@ -100,7 +101,7 @@ export class OBJLoader{
                     continue;
                 }
 
-                throw new Error("n-gons with n > 4 is not supported, please use Blender and triangulate your model");    
+                console.error("n-gons with n > 4 is not supported, please use Blender and triangulate your model");    
             }
         }
     }

@@ -5,13 +5,25 @@ import { Mesh } from "./Mesh.js";
 
 export class Renderable
 {
+    private static renderables: Array<Renderable> = new Array<Renderable>();
+
+    public static getRenderables(): Array<Renderable>
+    {
+        return this.renderables;
+    }
+
     protected mesh: Mesh;
     protected material: Material;
+    private addToRenderList: boolean;
+    private isRenderable: boolean;
 
-    public constructor(mesh: Mesh, material: Material)
+    public constructor(mesh: Mesh, material: Material, addToRenderList: boolean = true)
     {
-        this.mesh       = mesh;
-        this.material   = material;
+        this.mesh               = mesh;
+        this.material           = material;
+        this.addToRenderList    = addToRenderList;
+        this.isRenderable       = false;
+        this.init();
     }
 
     public render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void
@@ -25,6 +37,20 @@ export class Renderable
         camera.getRenderer().draw(passEncoder, pipeline, this.mesh, vertexBuffer);
     }
 
+    private async init()
+    {
+        await this.start();
+        
+        this.isRenderable       = true;
+        if(this.addToRenderList)
+            Renderable.renderables.push(this);
+    }
+
+    protected async start()
+    {
+        return;
+    }
+
     public getMesh(): Mesh
     {
         return this.mesh;
@@ -33,6 +59,11 @@ export class Renderable
     public getMaterial(): Material
     {
         return this.material;
+    }
+
+    public getIsRenderable(): boolean
+    {
+        return this.isRenderable;
     }
 
     protected setMesh(mesh: Mesh): void

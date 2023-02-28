@@ -8,6 +8,7 @@ import { Camera } from "./Camera.js";
 import { Material } from "./Material.js";
 import { Mesh } from "./Mesh.js";
 import { Shader } from "./Shader.js";
+import { Renderable } from "./Renderable.js";
 
 let vertexShader = `
 struct VertexOutput 
@@ -141,7 +142,7 @@ export class Renderer
     /**
      * Render an array of actors using a specific camera.
      */
-    public render(actors: Actor[], camera: Camera, sky: Sky): void
+    public render(renderables: Renderable[], camera: Camera, sky: Sky): void
     {
         if(!this.device 
         || !this.ctx 
@@ -156,10 +157,11 @@ export class Renderer
         view                        = this.getTextureView(this.ctx);
         passEncoder                 = this.getPassEncoder(commandEncoder, view, this.depthView);
 
-        sky.render(this.device, passEncoder, camera);
+        if(sky.getIsRenderable())
+            sky.render(this.device, passEncoder, camera);
 
-        for(let actor of actors) if(actor != camera)
-            actor.render(this.device, passEncoder, camera);
+        for(let renderable of renderables) if(renderable != camera)
+            renderable.render(this.device, passEncoder, camera);
 
         passEncoder.end();
         this.device.queue.submit([commandEncoder.finish()]);
