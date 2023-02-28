@@ -1,7 +1,7 @@
 import { Actor } from "../Entity/Actor.js";
 import { Matrix4 } from "../Math/Matrix4.js";
 import { Vector3 } from "../Math/Vector3.js";
-import { RenderingCanvas } from "./RenderEnvironment.js";
+import { RenderEnvironment } from "./RenderEnvironment.js";
 import { Sky } from "./Sky.js";
 import { Vertex } from "./Vertex.js";
 import { Camera } from "./Camera.js";
@@ -41,8 +41,8 @@ export class Renderer
 {
     private usePostProcessing: boolean;
 
-    private renderingCanvas: RenderingCanvas;
-    private ppRenderingCanvas: RenderingCanvas;
+    private renderingCanvas: RenderEnvironment;
+    private ppRenderingCanvas: RenderEnvironment;
     private gpu: GPU;
 
     private adapter: GPUAdapter | null;
@@ -72,8 +72,8 @@ export class Renderer
         this.ppctx                          = null;
         this.depthView                      = null;
         this.sampler                        = null;
-        this.renderingCanvas                = new RenderingCanvas();
-        this.ppRenderingCanvas              = new RenderingCanvas();
+        this.renderingCanvas                = new RenderEnvironment();
+        this.ppRenderingCanvas              = new RenderEnvironment();
         this.quadMesh                       = this.setupQuadMesh();
         this.quadMaterial                   = this.setupQuadMaterial();
         this.gpu                            = this.setupGPU();
@@ -356,7 +356,7 @@ export class Renderer
     /**
      * Gets the used canvas of a renderer.
      */
-    public getUsedCanvas(): RenderingCanvas
+    public getUsedCanvas(): RenderEnvironment
     {
         if(!this.usePostProcessing)
             return this.renderingCanvas;

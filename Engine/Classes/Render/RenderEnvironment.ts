@@ -1,4 +1,4 @@
-export class RenderingCanvas
+export class RenderEnvironment
 {
     private canvas: HTMLCanvasElement;
 
