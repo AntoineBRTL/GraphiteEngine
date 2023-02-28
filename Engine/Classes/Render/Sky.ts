@@ -8,7 +8,7 @@ export class Sky extends Renderable
 {
     public constructor()
     {
-        super(new Mesh(), new Material(), false);
+        super(false);
     }
 
     protected override async start(): Promise<void>

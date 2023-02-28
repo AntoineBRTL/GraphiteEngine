@@ -17,8 +17,9 @@ export class Actor extends Renderable
 
     public constructor()
     {
-        super(new Mesh(), new Material());
+        super();
         this.transform  = new Transform();
+        Actor.actors.push(this);
     }
     
     public update(deltaTime: number): void 
@@ -28,8 +29,7 @@ export class Actor extends Renderable
 
     protected override async start(): Promise<void> 
     {
-        super.start();
-        Actor.actors.push(this);
+        return;
     }
 
     public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void

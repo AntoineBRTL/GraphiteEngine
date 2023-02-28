@@ -1,3 +1,4 @@
+import { fileReader } from "../../Graphite";
 import { Transform } from "../Math/Transform.js";
 import { Camera } from "./Camera.js";
 import { Material } from "./Material.js";
@@ -17,10 +18,10 @@ export class Renderable
     private addToRenderList: boolean;
     private isRenderable: boolean;
 
-    public constructor(mesh: Mesh, material: Material, addToRenderList: boolean = true)
+    public constructor(addToRenderList: boolean = true)
     {
-        this.mesh               = mesh;
-        this.material           = material;
+        this.mesh               = new Mesh();
+        this.material           = new Material();
         this.addToRenderList    = addToRenderList;
         this.isRenderable       = false;
         this.init();
@@ -41,7 +42,7 @@ export class Renderable
     {
         await this.start();
         
-        this.isRenderable       = true;
+        this.isRenderable = true;
         if(this.addToRenderList)
             Renderable.renderables.push(this);
     }
