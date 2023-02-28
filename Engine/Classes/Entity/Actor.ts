@@ -19,7 +19,6 @@ export class Actor extends Renderable
     {
         super();
         this.transform  = new Transform();
-        Actor.actors.push(this);
     }
     
     public update(deltaTime: number): void 
@@ -29,6 +28,7 @@ export class Actor extends Renderable
 
     protected override async start(): Promise<void> 
     {
+        Actor.actors.push(this);
         return;
     }
 
