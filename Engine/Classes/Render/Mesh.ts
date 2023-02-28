@@ -1,12 +1,6 @@
 import { fileReader, objLoader } from "../../Graphite.js";
 import { Vertex } from "./Vertex.js";
 
-export enum Primitive
-{
-    Sphere,
-    IcoSphere
-}
-
 export class Mesh
 {
     /** POSITION, UV, NORMAL */
@@ -109,6 +103,12 @@ export class Mesh
         mesh.fromString(icoSphereOBJ);
         return mesh;
     }
+}
+
+export enum Primitive
+{
+    Sphere,
+    IcoSphere
 }
 
 let sphereOBJ = `# Blender 3.1.0

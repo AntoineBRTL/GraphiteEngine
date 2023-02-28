@@ -3,6 +3,31 @@ import { Material } from "./Material.js";
 import { Primitive, Mesh } from "./Mesh.js";
 import { Renderable } from "./Renderable.js";
 
+export class Sky extends Renderable
+{
+    public constructor()
+    {
+        super(Mesh.generate(Primitive.Sphere), new Material(vertexShader, fragmentShader, false));
+    }
+
+    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void
+    {
+        let pipeline: GPURenderPipeline;
+        let vertexBuffer: GPUBuffer;
+        let mViewRotBuffer: GPUBuffer;
+        let mProjBuffer: GPUBuffer;
+        let uniformBindingGroup0: GPUBindGroup;
+
+        pipeline                = this.material.getRenderPipeline(camera.getRenderer());
+        vertexBuffer            = this.mesh.getVertexBuffer(device);
+        mViewRotBuffer          = camera.getRenderer().toUniformGPUBuffer(device, camera.getTransform().getRotationMatrix());
+        mProjBuffer             = camera.getProjectionMatrixBuffer(device);
+        uniformBindingGroup0    = camera.getRenderer().setupUniformBindGroup(device, pipeline, 0, mViewRotBuffer, mProjBuffer);
+
+        camera.getRenderer().draw(passEncoder, pipeline, this.mesh, vertexBuffer, uniformBindingGroup0);
+    }
+}
+
 let vertexShader = `
 @group(0) @binding(0) var<uniform> mViewRot : mat4x4<f32>;
 @group(0) @binding(1) var<uniform> mProj : mat4x4<f32>;
@@ -72,28 +97,3 @@ fn fbm(st: vec2<f32>) -> f32
     }
     return value;
 }`;
-
-export class Sky extends Renderable
-{
-    public constructor()
-    {
-        super(Mesh.generate(Primitive.Sphere), new Material(vertexShader, fragmentShader, false));
-    }
-
-    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void
-    {
-        let pipeline: GPURenderPipeline;
-        let vertexBuffer: GPUBuffer;
-        let mViewRotBuffer: GPUBuffer;
-        let mProjBuffer: GPUBuffer;
-        let uniformBindingGroup0: GPUBindGroup;
-
-        pipeline                = this.material.getRenderPipeline(camera.getRenderer());
-        vertexBuffer            = this.mesh.getVertexBuffer(device);
-        mViewRotBuffer          = camera.getRenderer().toUniformGPUBuffer(device, camera.getTransform().getRotationMatrix());
-        mProjBuffer             = camera.getProjectionMatrixBuffer(device);
-        uniformBindingGroup0    = camera.getRenderer().setupUniformBindGroup(device, pipeline, 0, mViewRotBuffer, mProjBuffer);
-
-        camera.getRenderer().draw(passEncoder, pipeline, this.mesh, vertexBuffer, uniformBindingGroup0);
-    }
-}
