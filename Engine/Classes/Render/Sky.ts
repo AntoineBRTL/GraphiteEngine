@@ -20,7 +20,7 @@ export class Sky extends Renderable
 
         let sphereOBJ: string;
         let sphereMesh: Mesh;
-        sphereOBJ       = await fileReader.readFileAsync(new URL("../../Model/Sphere.obj", import.meta.url).pathname);
+        sphereOBJ       = await fileReader.readFileAsync(new URL("../../Model/Cube.obj", import.meta.url).pathname);
         sphereMesh      = Mesh.fromString(sphereOBJ);
 
         this.setMaterial(new Material(vertexSource, fragmentSource, false));

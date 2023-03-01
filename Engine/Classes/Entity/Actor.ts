@@ -19,7 +19,6 @@ export class Actor extends Renderable
     {
         super();
         this.transform  = new Transform();
-        Actor.actors.push(this);
     }
     
     public update(deltaTime: number): void 
@@ -42,6 +41,8 @@ export class Actor extends Renderable
 
         try { this.getMesh(); }
         catch (error){ this.setMesh(new Mesh()); }
+
+        Actor.actors.push(this);
 
         await super.start();
     }
