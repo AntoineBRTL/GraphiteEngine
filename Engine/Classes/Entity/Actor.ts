@@ -1,4 +1,4 @@
-import { fileReader } from "../../Graphite.js";
+import { Mesh, fileReader } from "../../Graphite.js";
 import { Transform } from "../Math/Transform.js";
 import { Camera } from "../Render/Camera.js";
 import { Material } from "../Render/Material.js";
@@ -29,12 +29,19 @@ export class Actor extends Renderable
 
     protected override async start(): Promise<void> 
     {
-        let fragmentSource: string;
-        let vertexSource: string;
-        fragmentSource  = await fileReader.readFileAsync(new URL("../../Shader/Default.frag", import.meta.url).pathname);
-        vertexSource    = await fileReader.readFileAsync(new URL("../../Shader/Default.vert", import.meta.url).pathname);
+        try { this.getMaterial(); }
+        catch (error)
+        {
+            let fragmentSource: string;
+            let vertexSource: string;
+            fragmentSource  = await fileReader.readFileAsync(new URL("../../Shader/Default.frag", import.meta.url).pathname);
+            vertexSource    = await fileReader.readFileAsync(new URL("../../Shader/Default.vert", import.meta.url).pathname);
 
-        this.setMaterial(new Material(vertexSource, fragmentSource, true));
+            this.setMaterial(new Material(vertexSource, fragmentSource, true));
+        }
+
+        try { this.getMesh(); }
+        catch (error){ this.setMesh(new Mesh()); }
 
         await super.start();
     }
