@@ -1,5 +1,3 @@
-import { fileReader } from "../../Graphite";
-import { Transform } from "../Math/Transform.js";
 import { Camera } from "./Camera.js";
 import { Material } from "./Material.js";
 import { Mesh } from "./Mesh.js";
@@ -13,15 +11,15 @@ export class Renderable
         return this.renderables;
     }
 
-    protected mesh: Mesh;
-    protected material: Material;
+    private mesh?: Mesh;
+    private material?: Material;
     private addToRenderList: boolean;
     private isRenderable: boolean;
 
-    public constructor(addToRenderList: boolean = true)
+    public constructor(material?: Material, mesh?: Mesh, addToRenderList: boolean = true)
     {
-        this.mesh               = new Mesh();
-        this.material           = new Material();
+        this.mesh               = mesh;
+        this.material           = material;
         this.addToRenderList    = addToRenderList;
         this.isRenderable       = false;
         this.init();
@@ -32,10 +30,10 @@ export class Renderable
         let pipeline: GPURenderPipeline;
         let vertexBuffer: GPUBuffer;
 
-        pipeline                = this.material.getRenderPipeline(camera.getRenderer());
-        vertexBuffer            = this.mesh.getVertexBuffer(device);
+        pipeline                = this.getMaterial().getRenderPipeline(camera.getRenderer());
+        vertexBuffer            = this.getMesh().getVertexBuffer(device);
 
-        camera.getRenderer().draw(passEncoder, pipeline, this.mesh, vertexBuffer);
+        camera.getRenderer().draw(passEncoder, pipeline, this.getMesh(), vertexBuffer);
     }
 
     private async init()
@@ -54,11 +52,13 @@ export class Renderable
 
     public getMesh(): Mesh
     {
+        if(!this.mesh) throw new Error("Trying to access mesh before initialization");
         return this.mesh;
     }
 
     public getMaterial(): Material
     {
+        if(!this.material) throw new Error("Trying to access material before initialization");
         return this.material;
     }
 

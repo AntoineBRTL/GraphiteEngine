@@ -101,7 +101,7 @@ export class OBJLoader{
                     continue;
                 }
 
-                console.error("n-gons with n > 4 is not supported, please use Blender and triangulate your model");    
+                console.error("n-gons with n > 4 are not supported, please use Blender and triangulate your model");    
             }
         }
     }

@@ -8,12 +8,12 @@ export class Material
     private pipeline: GPURenderPipeline | null;
     private depthWriteEnabled: boolean;
 
-    public constructor(vertexShaderSource?: string, fragmentShaderSource?: string, depthWriteEnabled?: boolean)
+    public constructor(vertexShaderSource?: string, fragmentShaderSource?: string, depthWriteEnabled: boolean = true)
     {
         this.vertexShader = new Shader(vertexShaderSource || vertexShader);
         this.fragmentShader = new Shader(fragmentShaderSource || fragmentShader);
         this.pipeline = null;
-        this.depthWriteEnabled = depthWriteEnabled == undefined? true : depthWriteEnabled;
+        this.depthWriteEnabled = depthWriteEnabled;
     }
 
     private getVertexShader(device: GPUDevice): GPUShaderModule

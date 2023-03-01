@@ -8,7 +8,7 @@ export class Sky extends Renderable
 {
     public constructor()
     {
-        super(false);
+        super();
     }
 
     protected override async start(): Promise<void>
@@ -35,12 +35,12 @@ export class Sky extends Renderable
         let mProjBuffer: GPUBuffer;
         let uniformBindingGroup0: GPUBindGroup;
 
-        pipeline                = this.material.getRenderPipeline(camera.getRenderer());
-        vertexBuffer            = this.mesh.getVertexBuffer(device);
+        pipeline                = this.getMaterial().getRenderPipeline(camera.getRenderer());
+        vertexBuffer            = this.getMesh().getVertexBuffer(device);
         mViewRotBuffer          = camera.getRenderer().toUniformGPUBuffer(device, camera.getTransform().getRotationMatrix());
         mProjBuffer             = camera.getProjectionMatrixBuffer(device);
         uniformBindingGroup0    = camera.getRenderer().setupUniformBindGroup(device, pipeline, 0, mViewRotBuffer, mProjBuffer);
 
-        camera.getRenderer().draw(passEncoder, pipeline, this.mesh, vertexBuffer, uniformBindingGroup0);
+        camera.getRenderer().draw(passEncoder, pipeline, this.getMesh(), vertexBuffer, uniformBindingGroup0);
     }
 }
