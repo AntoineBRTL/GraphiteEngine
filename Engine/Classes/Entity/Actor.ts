@@ -19,6 +19,7 @@ export class Actor extends Renderable
     {
         super();
         this.transform  = new Transform();
+        Actor.actors.push(this);
     }
     
     public update(deltaTime: number): void 
@@ -34,8 +35,7 @@ export class Actor extends Renderable
         vertexSource    = await fileReader.readFileAsync(new URL("../../Shader/Default.vert", import.meta.url).pathname);
 
         this.setMaterial(new Material(vertexSource, fragmentSource, true));
-        Actor.actors.push(this);
-        
+
         await super.start();
     }
 
