@@ -21,7 +21,9 @@ export * from "./Classes/Math/RotationMatrix.js";
 export * from "./Classes/Math/ScalingMatrix.js";
 export * from "./Classes/Math/Transform.js";
 export * from "./Classes/Math/TranslationMatrix.js";
+export * from "./Classes/Math/Vector2.js";
 export * from "./Classes/Math/Vector3.js";
+export * from "./Classes/Math/Vector4.js";
 /** RENDER */
 export * from "./Classes/Render/Camera.js";
 export * from "./Classes/Render/Material.js";
