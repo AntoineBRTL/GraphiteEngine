@@ -7,6 +7,7 @@
 /Engine/Classes/*.js
 /Engine/*.js
 /Engine/Classes/*/*.js
+/Docs/*.js
 /Docs/Classes/*.js
 /Docs/Classes/*/*.js
 /Docs/Classes/*/*/*.js

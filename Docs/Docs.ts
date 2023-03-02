@@ -1,5 +1,5 @@
-import { Introduction } from "./Content/Tutorials/Introduction";
-import { Page } from "./Page.js";
+import { Introduction } from "./Classes/Content/Tutorials/Introduction.js";
+import { Page } from "./Classes/Page.js";
 
 export class Docs
 {
