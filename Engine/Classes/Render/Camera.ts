@@ -19,7 +19,7 @@ export class Camera extends Actor
     public setFov(fov: number)
     {
         this.fov = fov;
-        this.resize();
+        this.updateProj();
     }
 
     public constructor()
@@ -35,10 +35,10 @@ export class Camera extends Actor
         this.projectionMatrix = this.setupProjectionMatrix();
         this.projectionMatrixBuffer = null;
 
-        window.addEventListener("resize", this.resize.bind(this));
+        window.addEventListener("resize", this.updateProj.bind(this));
     }
 
-    private resize()
+    private updateProj()
     {
         this.projectionMatrix = this.setupProjectionMatrix();
         this.projectionMatrixBuffer = null;
