@@ -3,6 +3,7 @@ import { ProjectionMatrix } from "../Math/ProjectionMatrix.js";
 import { Sky } from "./Sky.js";
 import { Renderer } from "./Renderer.js";
 import { Renderable } from "./Renderable.js";
+import { Engine } from "../Core/Engine.js";
 
 export class Camera extends Actor
 {
@@ -18,15 +19,12 @@ export class Camera extends Actor
     public setFov(fov: number)
     {
         this.fov = fov;
-        this.onChange();
+        this.resize();
     }
-
-    private renderer: Renderer;
 
     public constructor()
     {
         super();
-        this.renderer = new Renderer(this.onChange.bind(this));
 
         this.fov = 60.0;
         this.near = 0.01;
@@ -36,9 +34,11 @@ export class Camera extends Actor
 
         this.projectionMatrix = this.setupProjectionMatrix();
         this.projectionMatrixBuffer = null;
+
+        window.addEventListener("resize", this.resize.bind(this));
     }
 
-    private onChange()
+    private resize()
     {
         this.projectionMatrix = this.setupProjectionMatrix();
         this.projectionMatrixBuffer = null;
@@ -60,7 +60,7 @@ export class Camera extends Actor
 
     private setupProjectionMatrix(): ProjectionMatrix
     {
-        let canvas = this.renderer.getUsedCanvas().getCanvas();
+        let canvas = Engine.getFrame().getCanvas();
         return new ProjectionMatrix(this.fov * (Math.PI / 180.0), canvas.width / canvas.height, this.near, this.far);
     }
 
@@ -73,16 +73,11 @@ export class Camera extends Actor
 
     public override update(deltaTime: number): void 
     {
-        this.renderer.render(Renderable.getRenderables(), this, this.sky);
+        Engine.getRenderer().render(Renderable.getRenderables(), this, this.sky);
     }
 
-    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void {
+    public override render(passEncoder: GPURenderPassEncoder, camera: Camera): void {
         return;
-    }
-
-    public getRenderer(): Renderer
-    {
-        return this.renderer;
     }
 
     public getProjectionMatrix(): ProjectionMatrix

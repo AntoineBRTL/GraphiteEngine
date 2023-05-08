@@ -1,13 +1,13 @@
-import { Thread } from "../Core/Thread.js";
+import { Updater } from "../Core/Updater.js";
 import { Camera } from "../Render/Camera.js";
 import { Actor } from "./Actor.js";
 
 export class FrameRateDebuger extends Actor
 {
-    private thread: Thread;
+    private thread: Updater;
     private div: HTMLDivElement;
 
-    public constructor(thread: Thread)
+    public constructor(thread: Updater)
     {
         super();
         this.thread = thread;
@@ -29,7 +29,7 @@ export class FrameRateDebuger extends Actor
         this.div.innerText = (1.0 / this.thread.getDeltaTime()).toFixed(0).toString();
     }
 
-    public override render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void 
+    public override render(passEncoder: GPURenderPassEncoder, camera: Camera): void 
     {
         return;   
     }

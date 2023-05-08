@@ -1,3 +1,6 @@
+import DefaultFrag from "../../Shader/Default.frag.js";
+import DefaultVert from "../../Shader/Default.vert.js";
+import { Engine } from "../Core/Engine.js";
 import { Renderer } from "./Renderer.js";
 import { Shader } from "./Shader.js";
 
@@ -5,31 +8,26 @@ export class Material
 {
     private vertexShader: Shader;
     private fragmentShader: Shader;
-    private pipeline: GPURenderPipeline | null;
+    private pipeline: GPURenderPipeline;
     private depthWriteEnabled: boolean;
 
     public constructor(vertexShaderSource?: string, fragmentShaderSource?: string, depthWriteEnabled: boolean = true)
     {
-        this.vertexShader = new Shader(vertexShaderSource || vertexShader);
-        this.fragmentShader = new Shader(fragmentShaderSource || fragmentShader);
-        this.pipeline = null;
+        this.vertexShader = new Shader(vertexShaderSource || DefaultVert);
+        this.fragmentShader = new Shader(fragmentShaderSource || DefaultFrag);
         this.depthWriteEnabled = depthWriteEnabled;
+
+        this.pipeline = this.setupRenderPipeline();
     }
 
-    private getVertexShader(device: GPUDevice): GPUShaderModule
+    private getVertexShader(): GPUShaderModule
     {
-        let shader = this.vertexShader.getShader();
-        if(!shader)
-            shader = this.vertexShader.compile(device);
-        return shader;
+        return this.vertexShader.getShader();
     }
 
-    private getFragmentShader(device: GPUDevice): GPUShaderModule
+    private getFragmentShader(): GPUShaderModule
     {
-        let shader = this.fragmentShader.getShader();
-        if(!shader)
-            shader = this.fragmentShader.compile(device);
-        return shader;
+        return this.fragmentShader.getShader();
     }
 
     public useShader(vertexShader: Shader, fragmentShader: Shader): void
@@ -37,32 +35,32 @@ export class Material
         this.vertexShader = vertexShader;
         this.fragmentShader = fragmentShader;
 
-        this.pipeline = null;
+        this.pipeline = this.setupRenderPipeline();
     }
 
-    private setupRenderPipeline(renderer: Renderer): GPURenderPipeline
+    private setupRenderPipeline(): GPURenderPipeline
     {
         let pipeline: GPURenderPipeline;
 
-        pipeline = renderer.getDevice().createRenderPipeline(
+        pipeline = Engine.getRenderer().getDevice().createRenderPipeline(
             {
                 vertex: {
-                    module: this.getVertexShader(renderer.getDevice()),
+                    module: this.getVertexShader(),
                     entryPoint: "main",
                     buffers: this.getBuffersDescriptor()
                 },
                 layout: "auto",
                 fragment: {
-                    module: this.getFragmentShader(renderer.getDevice()),
+                    module: this.getFragmentShader(),
                     entryPoint: "main",
                     targets: [
                         {
-                            format: renderer.getGPU().getPreferredCanvasFormat()
+                            format: Engine.getFrame().getGPU().getPreferredCanvasFormat()
                         }
                     ]
                 },
                 primitive: {
-                    topology: renderer.getPrimitiveTopology()
+                    topology: Engine.getRenderer().getPrimitiveTopology()
                 },
                 depthStencil: {
                     depthWriteEnabled: this.depthWriteEnabled,
@@ -102,42 +100,8 @@ export class Material
         ];
     }
 
-    public getRenderPipeline(renderer: Renderer): GPURenderPipeline
+    public getRenderPipeline(): GPURenderPipeline
     {
-        if(this.pipeline)
-            return this.pipeline;
-        this.pipeline = this.setupRenderPipeline(renderer);
         return this.pipeline;
     }
 }
-
-let vertexShader = `
-@group(0) @binding(0) var<uniform> mActor : mat4x4<f32>;
-@group(0) @binding(1) var<uniform> mView : mat4x4<f32>;
-@group(0) @binding(2) var<uniform> mProj : mat4x4<f32>;
-@group(0) @binding(3) var<uniform> mActorRot : mat4x4<f32>;
-
-struct VertexOutput 
-{
-    @builtin(position) vertPosition : vec4<f32>,
-    @location(0) fragUV : vec2<f32>,
-    @location(1) fragNormal: vec4<f32>
-};
-
-@vertex
-fn main(@location(0) position: vec3<f32>, @location(1) uv: vec2<f32>, @location(2) normal: vec3<f32>) -> VertexOutput
-{
-    var output : VertexOutput;
-    output.vertPosition = mProj * mView * mActor * vec4<f32>(position.x, position.y, position.z, 1.0);
-    output.fragUV = uv;
-    output.fragNormal = normalize(mActorRot * vec4<f32>(normal, 1.0));
-    return output;
-}`;
-
-let fragmentShader = `
-@fragment
-fn main(@location(0) uv: vec2<f32>, @location(1) normal: vec4<f32>) -> @location(0) vec4<f32>
-{
-    let color: vec3<f32> = vec3<f32>(0.5, 0.5, 0.5) * max(0.1, dot(normal.xyz, normalize(vec3<f32>(1.0, 1.0, 0.0))));
-    return vec4<f32>(color, 1.0);
-}`;

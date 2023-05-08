@@ -1,26 +1,27 @@
+import { Engine } from "../Core/Engine.js";
+
 export class Shader
 {
     private source: string;
-    private shader: GPUShaderModule | null;
+    private shader: GPUShaderModule;
 
     public constructor(source: string)
     {
         this.source = source;
-        this.shader = null;
+        this.shader = this.compile();
     }
 
-    public compile(device: GPUDevice): GPUShaderModule
+    private compile(): GPUShaderModule
     {
-        this.shader = device.createShaderModule(
+        let device = Engine.getRenderer().getDevice();
+        return device.createShaderModule(
             {
                 code: this.source,
             }
         );
-
-        return this.shader;
     }
 
-    public getShader(): GPUShaderModule | null
+    public getShader(): GPUShaderModule
     {
         return this.shader;
     }

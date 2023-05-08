@@ -55,7 +55,7 @@ export class Transform
             return fm;
         }
 
-        fm = (rm.product(tm).product(sm))
+        fm = (rm.product(tm).product(sm));
         
         return fm;
     }

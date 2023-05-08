@@ -1,4 +1,4 @@
-import { fileReader, objLoader } from "../../Graphite.js";
+import { Engine } from "../../Graphite.js";
 import { Vertex } from "./Vertex.js";
 
 export class Mesh
@@ -6,25 +6,23 @@ export class Mesh
     /** POSITION, UV, NORMAL */
     private vertices: number[];
 
-    private vertexBuffer: GPUBuffer | null;
+    private vertexBuffer: GPUBuffer;
 
-    public constructor()
+    public constructor(vertices: Array<number> = [])
     {
-        this.vertices = new Array();
-        this.vertexBuffer = null;
+        this.vertices       = vertices;
+        this.vertexBuffer   = this.generateVertexBuffer();
     }
 
-    public getVertexBuffer(device: GPUDevice): GPUBuffer
+    public getVertexBuffer(): GPUBuffer
     {
-        let vertexBuffer = this.vertexBuffer;
-        if(!vertexBuffer)
-            vertexBuffer = this.generateVertexBuffer(device, this.vertices);
-        return vertexBuffer;
+        return this.vertexBuffer;
     }
 
-    private generateVertexBuffer(device: GPUDevice, t: number[]): GPUBuffer
+    private generateVertexBuffer(): GPUBuffer
     {
-        let tf = new Float32Array(t);
+        let device = Engine.getRenderer().getDevice();
+        let tf = new Float32Array(this.vertices);
         let buffer = device.createBuffer(
             {
                 size: tf.byteLength,
@@ -35,8 +33,6 @@ export class Mesh
         // new Float32Array(vertexBuffer.getMappedRange()).set(vertices);
         // vertexBuffer.unmap();
         device.queue.writeBuffer(buffer, 0, tf);
-
-        this.vertexBuffer = buffer;
         return buffer;
     }
 
@@ -65,36 +61,14 @@ export class Mesh
         return this.vertices;
     }
 
-    private reset(): void
-    {
-        this.vertexBuffer = null;
-    }
-
-    protected async from(path: string): Promise<void>
-    {
-        let obj: string = await fileReader.readFileAsync(path);
-        objLoader.load(obj, this);
-        this.reset();
-    }
-
-    protected fromString(content: string): void
-    {
-        objLoader.load(content, this);
-        this.reset();
-    }
-
     public static async from(path: string): Promise<Mesh>
     {
-        let mesh = new Mesh();
-        await mesh.from(path);
-        return mesh;
+        let obj: string = await Engine.getFileReader().readFileAsync(path);
+        return Engine.getObjLoader().load(obj);
     }
 
     public static fromString(content: string): Mesh
     {
-        let mesh: Mesh;
-        mesh = new Mesh();
-        objLoader.load(content, mesh);
-        return mesh;
+        return Engine.getObjLoader().load(content);
     }
 }

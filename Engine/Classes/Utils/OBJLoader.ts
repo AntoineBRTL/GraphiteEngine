@@ -3,17 +3,19 @@ import { FileReader } from "./FileReader.js";
 
 export class OBJLoader{
 
-    public load(obj: string, mesh: Mesh)
+    public load(obj: string): Mesh
     {
         let lines: Array<string>;
         let vertexPositions: Array<Array<number>>;
         let vertexNormals: Array<Array<number>>;
         let vertexUVs: Array<Array<number>>;
+        let vertices: Array<number>;
 
         lines               = obj.split("\n");
         vertexPositions     = new Array();
         vertexNormals       = new Array();
         vertexUVs           = new Array(); 
+        vertices            = new Array();
 
         for(let line of lines)
         {
@@ -64,9 +66,9 @@ export class OBJLoader{
                     let vertexUVIndex = parseInt(indices[1]) - 1;
                     let vertexNormalIndex = parseInt(indices[2]) - 1;
 
-                    mesh.addVertexAsNumbers(...vertexPositions[vertexPositionIndex || 0]);
-                    mesh.addVertexAsNumbers(...vertexUVs[vertexUVIndex || 0]);
-                    mesh.addVertexAsNumbers(...vertexNormals[vertexNormalIndex || 0]);
+                    vertices.push(...vertexPositions[vertexPositionIndex || 0]);
+                    vertices.push(...vertexUVs[vertexUVIndex || 0]);
+                    vertices.push(...vertexNormals[vertexNormalIndex || 0]);
                 }
 
                 /** TRIANGLES */
@@ -104,5 +106,7 @@ export class OBJLoader{
                 console.error("n-gons with n > 4 are not supported, please use Blender and triangulate your model");    
             }
         }
+
+        return new Mesh(vertices);
     }
 }

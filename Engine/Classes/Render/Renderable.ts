@@ -1,3 +1,6 @@
+import DefaultFrag from "../../Shader/Default.frag.js";
+import DefaultVert from "../../Shader/Default.vert.js";
+import { Engine } from "../Core/Engine.js";
 import { Camera } from "./Camera.js";
 import { Material } from "./Material.js";
 import { Mesh } from "./Mesh.js";
@@ -11,43 +14,28 @@ export class Renderable
         return this.renderables;
     }
 
-    private mesh?: Mesh;
-    private material?: Material;
-    private addToRenderList: boolean;
+    private mesh: Mesh;
+    private material: Material;
     private isRenderable: boolean;
 
-    public constructor(material?: Material, mesh?: Mesh, addToRenderList: boolean = true)
+    public constructor()
     {
-        this.mesh               = mesh;
-        this.material           = material;
-        this.addToRenderList    = addToRenderList;
+        this.mesh               = new Mesh();
+        this.material           = new Material(DefaultVert, DefaultFrag);
         this.isRenderable       = false;
-        this.init();
+
+        Renderable.renderables.push(this);
     }
 
-    public render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void
+    public render(passEncoder: GPURenderPassEncoder, camera: Camera): void
     {
         let pipeline: GPURenderPipeline;
         let vertexBuffer: GPUBuffer;
 
-        pipeline                = this.getMaterial().getRenderPipeline(camera.getRenderer());
-        vertexBuffer            = this.getMesh().getVertexBuffer(device);
+        pipeline                = this.getMaterial().getRenderPipeline();
+        vertexBuffer            = this.getMesh().getVertexBuffer();
 
-        camera.getRenderer().draw(passEncoder, pipeline, this.getMesh(), vertexBuffer);
-    }
-
-    private async init()
-    {
-        await this.start();
-        
-        this.isRenderable = true;
-        if(this.addToRenderList)
-            Renderable.renderables.push(this);
-    }
-
-    protected async start()
-    {
-        return;
+        Engine.getRenderer().draw(passEncoder, pipeline, this.getMesh(), vertexBuffer);
     }
 
     public getMesh(): Mesh

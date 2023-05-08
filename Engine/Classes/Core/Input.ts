@@ -1,5 +1,5 @@
 import { Vector3 } from "../Math/Vector3.js";
-import { Thread } from "./Thread.js";
+import { Updater } from "./Updater.js";
 
 export class Input
 {
@@ -7,11 +7,11 @@ export class Input
     private keyDown: string[];
     private keyUp: string[];
 
-    private thread: Thread;
+    private updater: Updater;
 
     private mousePosition: Vector3;
 
-    public constructor(thread: Thread)
+    public constructor()
     {
         this.keyPress = [];
         this.keyDown = [];
@@ -31,9 +31,8 @@ export class Input
             this.keyUp.push(e.key);
         }.bind(this));
 
-        this.thread = thread;
-        this.thread.onTick = this.inputTick.bind(this);
-        this.thread.launch();
+        this.updater = new Updater(this.inputTick.bind(this));
+        this.updater.launch();
 
         this.mousePosition = new Vector3();
 

@@ -1,6 +1,6 @@
 /** IMPORTS */
 import { Engine }       from "./Classes/Core/Engine.js";
-import { Thread }       from "./Classes/Core/Thread.js";
+import { Updater }       from "./Classes/Core/Updater.js";
 import { Input }        from "./Classes/Core/Input.js";
 import { FileReader }   from "./Classes/Utils/FileReader.js";
 import { OBJLoader }    from "./Classes/Utils/OBJLoader.js";
@@ -9,7 +9,7 @@ import { OBJLoader }    from "./Classes/Utils/OBJLoader.js";
 /** CORE */
 export * from "./Classes/Core/Engine.js";
 export * from "./Classes/Core/Input.js";
-export * from "./Classes/Core/Thread.js";
+export * from "./Classes/Core/Updater.js";
 /** ENTITY */
 export * from "./Classes/Entity/Actor.js";
 export * from "./Classes/Entity/ControlCamera.js";
@@ -29,7 +29,7 @@ export * from "./Classes/Render/Camera.js";
 export * from "./Classes/Render/Material.js";
 export * from "./Classes/Render/Mesh.js";
 export * from "./Classes/Render/Renderable.js";
-export * from "./Classes/Render/RenderEnvironment.js";
+export * from "./Classes/Render/Frame.js";
 export * from "./Classes/Render/Renderer.js";
 export * from "./Classes/Render/Shader.js";
 export * from "./Classes/Render/Sky.js";
@@ -37,10 +37,3 @@ export * from "./Classes/Render/Vertex.js";
 /** UTILS */
 export * from "./Classes/Utils/FileReader.js";
 export * from "./Classes/Utils/OBJLoader.js";
-
-export let fileReader:      FileReader  = new FileReader();
-export let objLoader:       OBJLoader   = new OBJLoader();
-export let inputThread:     Thread      = new Thread();       /** INPUT THREAD */
-export let renderThread:    Thread      = new Thread();       /** MAIN THREAD */
-export let input:           Input       = new Input(inputThread);
-export let graphite:        Engine      = new Engine(renderThread);

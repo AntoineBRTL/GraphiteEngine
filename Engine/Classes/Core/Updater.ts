@@ -1,16 +1,20 @@
-export class Thread
+export class Updater
 {
     private isRunning: boolean;
 
     private deltaTime: number;
     private lastTime: number;
 
-    public constructor()
+    private callback: Function;
+
+    public constructor(callback: Function)
     {
         this.isRunning = false;
 
         this.deltaTime = 0;
         this.lastTime = 0;
+
+        this.callback = callback;
     }
 
     private run(): void
@@ -18,15 +22,13 @@ export class Thread
         if(!this.isRunning)
             return;
 
-        this.onTick(this.deltaTime);
+        this.callback(this.deltaTime);
 
         this.deltaTime = (performance.now() - this.lastTime) / 1e3;
         this.lastTime = performance.now();
 
         window.requestAnimationFrame(this.run.bind(this));
     }
-
-    public onTick(deltaTime: number): void {};
 
     public launch(): void
     {
