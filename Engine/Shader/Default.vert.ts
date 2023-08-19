@@ -23,3 +23,27 @@ fn main(@location(0) position: vec3<f32>, @location(1) uv: vec2<f32>, @location(
 }
 
 `
+
+// export default `#version 300 es
+// precision mediump float;
+
+// in vec2 vPosition;
+// in vec2 vUV;
+
+// out vec2 uv;
+
+// uniform mat4 mActor;
+// uniform mat4 mView;
+// uniform mat4 mProj;
+// uniform mat4 mActorRot;
+
+// out vec3 position;
+// out vec3 uv;
+// out vec3 normal;
+
+// void main()
+// {   
+//     uv = vUV;
+//     gl_Position = mProj * mView * mActor * vec4(vPosition, 0.0, 1.0);
+// }
+// `;

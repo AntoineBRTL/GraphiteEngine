@@ -33,7 +33,7 @@ export class Updater
     public launch(): void
     {
         if(this.isRunning)
-            throw new Error("Thread is already running");
+            throw new Error("Updater is already running");
 
         this.isRunning = true;
         this.lastTime = performance.now();
